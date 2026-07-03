@@ -2,1295 +2,1191 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>綠意森活館 Green Life Pavilion</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: {
-              50: '#f0fdf4',
-              100: '#dcfce7',
-              200: '#bbf7d0',
-              600: '#16a34a',
-              700: '#15803d',
-              800: '#166534',
-              900: '#14532d',
-            },
-            stone: {
-              50: '#fafaf9',
-              100: '#f5f5f4',
-              800: '#292524',
-              900: '#1c1917',
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>綠意生機 GreenLife Organic Supermarket</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f4f9f4',
+                            100: '#e8f3e8',
+                            200: '#c7e6c7',
+                            500: '#2d6a4f',
+                            600: '#1b4332',
+                            700: '#081c15',
+                        },
+                        earth: {
+                            50: '#fdfbf7',
+                            100: '#f9f6f0',
+                            200: '#f0eae1',
+                            800: '#4a3f35',
+                        }
+                    }
+                }
             }
-          },
-          fontFamily: {
-            sans: ['Noto Sans TC', 'sans-serif'],
-            serif: ['Playfair Display', 'serif'],
-          }
         }
-      }
-    }
-  </script>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    body {
-      font-family: 'Noto Sans TC', sans-serif;
-      scroll-behavior: smooth;
-    }
-    .hero-bg {
-      background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1920&q=80');
-      background-size: cover;
-      background-position: center;
-    }
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #166534;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #14532d;
-    }
-    /* Page Transition */
-    .page-section {
-      display: none;
-    }
-    .page-section.active {
-      display: block;
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fdfbf7;
+        }
+        .active-link {
+            color: #2d6a4f;
+            border-bottom: 2px solid #2d6a4f;
+        }
+        /* Smooth transition */
+        .page-section {
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
 </head>
-<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col">
+<body class="flex flex-col min-h-screen text-earth-800">
 
-  <!-- Global Alert Banner -->
-  <div id="global-error-banner" class="hidden bg-red-600 text-white text-center py-3 px-4 sticky top-0 z-50 font-medium shadow-md">
-    <div class="container mx-auto flex justify-between items-center">
-      <span id="global-error-message">網頁顯示異常，請重新整理頁面。</span>
-      <button onclick="location.reload()" class="bg-white text-red-600 px-3 py-1 rounded-full text-sm font-bold hover:bg-red-50 transition">重新整理</button>
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-primary-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+        <span id="toast-icon"><i class="fas fa-check-circle"></i></span>
+        <span id="toast-message">商品已加入購物車</span>
     </div>
-  </div>
 
-  <!-- Header / Navigation -->
-  <header class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 transition-all duration-300">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <!-- Logo -->
-      <a href="#" onclick="navigateTo('home')" class="flex items-center space-x-3 group">
-        <div class="bg-primary-800 text-white p-2.5 rounded-xl group-hover:bg-primary-700 transition">
-          <i data-lucide="sprout" class="w-6 h-6"></i>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold text-primary-900 tracking-wider leading-none">綠意森活館</h1>
-          <span class="text-xs text-primary-600 font-semibold tracking-widest uppercase">Green Life Pavilion</span>
-        </div>
-      </a>
-
-      <!-- Desktop Nav -->
-      <nav class="hidden md:flex space-x-8 font-medium text-stone-600">
-        <a href="#" onclick="navigateTo('home')" class="nav-link hover:text-primary-700 transition py-2 border-b-2 border-transparent" data-tab="home">首頁</a>
-        <a href="#" onclick="navigateTo('products')" class="nav-link hover:text-primary-700 transition py-2 border-b-2 border-transparent" data-tab="products">精選商品</a>
-        <a href="#" onclick="navigateTo('about')" class="nav-link hover:text-primary-700 transition py-2 border-b-2 border-transparent" data-tab="about">關於我們</a>
-        <a href="#" onclick="navigateTo('contact')" class="nav-link hover:text-primary-700 transition py-2 border-b-2 border-transparent" data-tab="contact">聯絡我們</a>
-      </nav>
-
-      <!-- Actions -->
-      <div class="flex items-center space-x-4">
-        <!-- Cart Trigger -->
-        <button id="cart-btn" onclick="toggleCart(true)" class="relative p-2 text-stone-600 hover:text-primary-700 transition rounded-full hover:bg-stone-100">
-          <i data-lucide="shopping-cart" class="w-6 h-6"></i>
-          <span id="cart-count" class="absolute -top-1 -right-1 bg-primary-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold scale-90">0</span>
-        </button>
-        <!-- Mobile Menu Trigger -->
-        <button onclick="toggleMobileMenu(true)" class="md:hidden p-2 text-stone-600 hover:text-primary-700 transition rounded-full hover:bg-stone-100">
-          <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Mobile Menu Drawer -->
-  <div id="mobile-menu" class="fixed inset-0 bg-black/50 z-50 hidden transition-opacity duration-300 opacity-0">
-    <div class="absolute right-0 top-0 bottom-0 w-64 bg-white shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300">
-      <div>
-        <div class="flex justify-between items-center mb-8">
-          <span class="font-bold text-primary-900">選單</span>
-          <button onclick="toggleMobileMenu(false)" class="p-1 rounded-full hover:bg-stone-100"><i data-lucide="x" class="w-6 h-6"></i></button>
-        </div>
-        <nav class="flex flex-col space-y-4 font-medium text-stone-600">
-          <a href="#" onclick="navigateTo('home'); toggleMobileMenu(false)" class="py-2 hover:text-primary-700 border-b border-stone-100">首頁</a>
-          <a href="#" onclick="navigateTo('products'); toggleMobileMenu(false)" class="py-2 hover:text-primary-700 border-b border-stone-100">精選商品</a>
-          <a href="#" onclick="navigateTo('about'); toggleMobileMenu(false)" class="py-2 hover:text-primary-700 border-b border-stone-100">關於我們</a>
-          <a href="#" onclick="navigateTo('contact'); toggleMobileMenu(false)" class="py-2 hover:text-primary-700 border-b border-stone-100">聯絡我們</a>
-        </nav>
-      </div>
-      <div class="text-xs text-stone-400 text-center">
-        © 2024 綠意森活館. All rights reserved.
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Area -->
-  <main class="flex-grow">
-
-    <!-- ================= HOME PAGE ================= -->
-    <section id="page-home" class="page-section active">
-      <!-- Hero Section -->
-      <div class="hero-bg text-white py-32 md:py-48 px-4 relative overflow-hidden">
-        <div class="container mx-auto text-center relative z-10 max-w-3xl">
-          <span class="inline-block bg-primary-600/90 text-white text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-6">產地直送 • 100% 有機健康</span>
-          <h2 class="text-4xl md:text-6xl font-bold mb-6 leading-tight font-serif">用最純粹的食材<br>滋養您的美好生活</h2>
-          <p class="text-lg md:text-xl text-stone-200 mb-10 font-light leading-relaxed">嚴選在地有機蔬果、無添加天然零食、產地直送新鮮肉品與優質乳製品。我們為您把關每一道關卡，讓健康變得如此簡單。</p>
-          <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <button onclick="navigateTo('products')" class="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5">立即選購商品</button>
-            <button onclick="navigateTo('about')" class="bg-white/10 hover:bg-white/20 text-white border border-white/30 font-bold px-8 py-4 rounded-full backdrop-blur-sm transition">了解我們的故事</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Features Section -->
-      <div class="bg-white py-16 border-b border-stone-100">
-        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="flex items-start space-x-4 p-6 rounded-2xl hover:bg-stone-50 transition">
-            <div class="bg-primary-100 text-primary-800 p-3 rounded-xl"><i data-lucide="leaf" class="w-6 h-6"></i></div>
-            <div>
-              <h4 class="font-bold text-lg mb-2">100% 有機認證</h4>
-              <p class="text-stone-500 text-sm leading-relaxed">所有生鮮蔬果皆通過嚴格有機認證，無農藥殘留，吃得安心。</p>
-            </div>
-          </div>
-          <div class="flex items-start space-x-4 p-6 rounded-2xl hover:bg-stone-50 transition">
-            <div class="bg-primary-100 text-primary-800 p-3 rounded-xl"><i data-lucide="truck" class="w-6 h-6"></i></div>
-            <div>
-              <h4 class="font-bold text-lg mb-2">產地低溫直送</h4>
-              <p class="text-stone-500 text-sm leading-relaxed">全程冷鏈配送，縮短產地到餐桌的距離，鎖住最初的新鮮。</p>
-            </div>
-          </div>
-          <div class="flex items-start space-x-4 p-6 rounded-2xl hover:bg-stone-50 transition">
-            <div class="bg-primary-100 text-primary-800 p-3 rounded-xl"><i data-lucide="heart" class="w-6 h-6"></i></div>
-            <div>
-              <h4 class="font-bold text-lg mb-2">友善在地小農</h4>
-              <p class="text-stone-500 text-sm leading-relaxed">支持在地永續農業，合理收購價格，與土地和農民共好。</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Latest Products Section -->
-      <div class="container mx-auto px-4 py-20">
-        <div class="flex justify-between items-end mb-12">
-          <div>
-            <span class="text-primary-600 font-bold text-sm tracking-widest uppercase">New Arrivals</span>
-            <h3 class="text-3xl font-bold mt-2 font-serif">最新上架商品</h3>
-          </div>
-          <button onclick="navigateTo('products')" class="text-primary-700 hover:text-primary-800 font-bold flex items-center space-x-1 group">
-            <span>瀏覽全部</span>
-            <i data-lucide="arrow-right" class="w-4 h-4 transform group-hover:translate-x-1 transition"></i>
-          </button>
-        </div>
-        <!-- Product Grid (Latest 10) -->
-        <div id="latest-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          <!-- Dynamic Loading Skeleton -->
-          <div class="animate-pulse bg-white rounded-2xl p-4 border border-stone-100 h-80"></div>
-          <div class="animate-pulse bg-white rounded-2xl p-4 border border-stone-100 h-80"></div>
-          <div class="animate-pulse bg-white rounded-2xl p-4 border border-stone-100 h-80"></div>
-          <div class="animate-pulse bg-white rounded-2xl p-4 border border-stone-100 h-80"></div>
-          <div class="animate-pulse bg-white rounded-2xl p-4 border border-stone-100 h-80"></div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ================= PRODUCTS PAGE ================= -->
-    <section id="page-products" class="page-section">
-      <div class="bg-primary-900 text-white py-16 px-4 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold font-serif mb-4">精選商品</h2>
-        <p class="text-primary-200 max-w-xl mx-auto font-light">探索我們為您嚴選的健康食材，支持在地永續，品味自然原味。</p>
-      </div>
-
-      <div class="container mx-auto px-4 py-12">
-        <!-- Search & Filter Controls -->
-        <div class="flex flex-col md:flex-row gap-6 mb-10 items-center justify-between">
-          <!-- Search Bar -->
-          <div class="relative w-full md:w-96">
-            <input type="text" id="search-input" placeholder="搜尋商品名稱、品牌..." class="w-full pl-12 pr-4 py-3 rounded-full border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent shadow-sm">
-            <i data-lucide="search" class="absolute left-4 top-3.5 text-stone-400 w-5 h-5"></i>
-          </div>
-          <!-- Categories Filter -->
-          <div id="categories-container" class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end overflow-x-auto pb-2 md:pb-0">
-            <!-- Dynamic Categories -->
-          </div>
-        </div>
-
-        <!-- Products Grid -->
-        <div id="all-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-          <!-- Dynamic Products -->
-        </div>
-        <!-- No Results -->
-        <div id="no-products-found" class="hidden text-center py-20">
-          <i data-lucide="package-open" class="w-16 h-16 text-stone-300 mx-auto mb-4"></i>
-          <h4 class="text-xl font-bold text-stone-600 mb-2">找不到相關商品</h4>
-          <p class="text-stone-400">試試看其他關鍵字或分類吧！</p>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ================= PRODUCT DETAIL PAGE ================= -->
-    <section id="page-product-detail" class="page-section">
-      <div class="container mx-auto px-4 py-12">
-        <button onclick="navigateTo('products')" class="mb-8 flex items-center space-x-2 text-stone-600 hover:text-primary-700 font-medium group">
-          <i data-lucide="arrow-left" class="w-5 h-5 transform group-hover:-translate-x-1 transition"></i>
-          <span>返回商品列表</span>
-        </button>
-
-        <div id="product-detail-content" class="bg-white rounded-3xl shadow-sm border border-stone-100 overflow-hidden p-6 md:p-12">
-          <!-- Dynamic Detail Content -->
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ================= ABOUT US PAGE ================= -->
-    <section id="page-about" class="page-section">
-      <div class="bg-primary-900 text-white py-16 px-4 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold font-serif mb-4">關於我們</h2>
-        <p class="text-primary-200 max-w-xl mx-auto font-light">回歸自然，品味純粹。了解我們的創立初衷與對品質的堅持。</p>
-      </div>
-
-      <div class="container mx-auto px-4 py-20">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <!-- Left: Image -->
-          <div class="lg:col-span-5">
-            <div class="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/5] bg-stone-100">
-              <img id="about-shop-image" src="" alt="商店代表照" class="w-full h-full object-cover opacity-0 transition-opacity duration-500">
-              <div id="about-image-skeleton" class="absolute inset-0 bg-stone-200 animate-pulse flex items-center justify-center">
-                <i data-lucide="image" class="w-12 h-12 text-stone-400"></i>
-              </div>
-            </div>
-          </div>
-          <!-- Right: Story -->
-          <div class="lg:col-span-7 space-y-6">
-            <span class="text-primary-600 font-bold text-sm tracking-widest uppercase">Our Story</span>
-            <h3 class="text-3xl md:text-4xl font-bold font-serif text-stone-900">綠意森活館的創立故事</h3>
-            <div class="w-20 h-1 bg-primary-600 rounded-full"></div>
-            <p id="about-shop-story" class="text-stone-600 leading-relaxed text-lg whitespace-pre-line">
-              <!-- Dynamic Story -->
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- ================= CONTACT US PAGE ================= -->
-    <section id="page-contact" class="page-section">
-      <div class="bg-primary-900 text-white py-16 px-4 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold font-serif mb-4">聯絡我們</h2>
-        <p class="text-primary-200 max-w-xl mx-auto font-light">有任何問題或建議嗎？歡迎隨時與我們聯絡，我們將竭誠為您服務。</p>
-      </div>
-
-      <div class="container mx-auto px-4 py-20">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          <!-- Left: Contact Info -->
-          <div class="lg:col-span-5 space-y-8">
-            <div>
-              <span class="text-primary-600 font-bold text-sm tracking-widest uppercase">Contact Info</span>
-              <h3 class="text-3xl font-bold font-serif mt-2">聯絡資訊</h3>
-            </div>
-            <div id="contact-info-list" class="space-y-4">
-              <!-- Dynamic Contact Info -->
-            </div>
-          </div>
-
-          <!-- Right: Contact Form -->
-          <div class="lg:col-span-7 bg-white p-8 md:p-10 rounded-3xl shadow-sm border border-stone-100">
-            <h4 class="text-2xl font-bold mb-6 font-serif">發送訊息</h4>
-            <form id="contact-form" onsubmit="handleContactSubmit(event)" class="space-y-6">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-stone-700 mb-2">姓名 <span class="text-red-500">*</span></label>
-                  <input type="text" name="name" required class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur shadow-sm border-b border-earth-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="navigateTo('home')">
+                    <div class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center text-white mr-3">
+                        <i class="fas fa-leaf text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold text-primary-600 block leading-tight">綠意生機</span>
+                        <span class="text-xs text-earth-800 block tracking-wider uppercase">GreenLife Organic</span>
+                    </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-stone-700 mb-2">Email <span class="text-red-500">*</span></label>
-                  <input type="email" name="email" required class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-                </div>
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-stone-700 mb-2">電話 <span class="text-stone-400">(選填)</span></label>
-                <input type="tel" name="phone" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-stone-700 mb-2">描述 <span class="text-stone-400">(最多 500 字，選填)</span></label>
-                <textarea name="description" maxlength="500" rows="5" class="w-full px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent resize-none"></textarea>
-              </div>
-              <button type="submit" id="submit-form-btn" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center space-x-2">
-                <span>送出訊息</span>
-                <i data-lucide="send" class="w-5 h-5"></i>
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
 
-  </main>
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                    <a href="#home" onclick="navigateTo('home')" class="nav-link py-2 text-gray-600 hover:text-primary-500 transition-colors">首頁</a>
+                    <a href="#products" onclick="navigateTo('products')" class="nav-link py-2 text-gray-600 hover:text-primary-500 transition-colors">精選商品</a>
+                    <a href="#about" onclick="navigateTo('about')" class="nav-link py-2 text-gray-600 hover:text-primary-500 transition-colors">關於我們</a>
+                    <a href="#contact" onclick="navigateTo('contact')" class="nav-link py-2 text-gray-600 hover:text-primary-500 transition-colors">聯絡我們</a>
+                </nav>
 
-  <!-- Footer -->
-  <footer class="bg-stone-900 text-stone-400 py-12 border-t border-stone-800">
-    <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex items-center space-x-3">
-        <div class="bg-primary-800 text-white p-2 rounded-lg">
-          <i data-lucide="sprout" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <span class="font-bold text-white block">綠意森活館</span>
-          <span class="text-xs tracking-widest uppercase">Green Life Pavilion</span>
-        </div>
-      </div>
-      <div class="text-sm text-center md:text-right">
-        <p>© 2024 綠意森活館. All rights reserved.</p>
-        <p class="text-xs text-stone-600 mt-1">Powered by Modern Web Technology</p>
-      </div>
-    </div>
-  </footer>
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-4">
+                    <!-- Cart Icon -->
+                    <button id="cart-btn" onclick="navigateTo('cart')" class="relative p-2 text-gray-600 hover:text-primary-500 transition-colors focus:outline-none hidden">
+                        <i class="fas fa-shopping-basket text-2xl"></i>
+                        <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">0</span>
+                    </</button>
 
-  <!-- ================= SHOPPING CART DRAWER ================= -->
-  <div id="cart-drawer" class="fixed inset-0 bg-black/50 z-50 hidden transition-opacity duration-300 opacity-0">
-    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300">
-      <!-- Cart Header -->
-      <div class="p-6 border-b border-stone-100 flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="shopping-bag" class="w-6 h-6 text-primary-800"></i>
-          <span class="font-bold text-lg text-stone-900">您的購物車</span>
-        </div>
-        <button onclick="toggleCart(false)" class="p-1 rounded-full hover:bg-stone-100"><i data-lucide="x" class="w-6 h-6"></i></button>
-      </div>
-
-      <!-- Cart Items (Scrollable) -->
-      <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
-        <!-- Dynamic Cart Items -->
-      </div>
-
-      <!-- Cart Footer / Checkout Form -->
-      <div id="cart-checkout-section" class="p-6 border-t border-stone-100 bg-stone-50 space-y-4">
-        <div class="flex justify-between items-center font-bold text-lg text-stone-900">
-          <span>總計金額</span>
-          <span id="cart-total-amount">NT$ 0</span>
-        </div>
-
-        <!-- Checkout Form -->
-        <div id="checkout-form-container" class="space-y-3 hidden">
-          <hr class="border-stone-200 my-3">
-          <h5 class="font-bold text-sm text-stone-700">收件資訊</h5>
-          <input type="text" id="checkout-name" placeholder="收件人姓名" class="w-full px-3 py-2 text-sm rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
-          <input type="tel" id="checkout-phone" placeholder="收件人電話" class="w-full px-3 py-2 text-sm rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
-          <input type="text" id="checkout-address" placeholder="收件地址" class="w-full px-3 py-2 text-sm rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-primary-600">
-          
-          <h5 class="font-bold text-sm text-stone-700 mt-3">付款方式</h5>
-          <div id="payment-methods-container" class="grid grid-cols-2 gap-2">
-            <!-- Dynamic Payment Methods -->
-          </div>
-        </div>
-
-        <button id="checkout-btn" onclick="handleCheckoutStep()" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3.5 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center space-x-2">
-          <span>前往結帳</span>
-          <i data-lucide="credit-card" class="w-5 h-5"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= BANK TRANSFER INFO MODAL ================= -->
-  <div id="bank-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl transform scale-95 opacity-0 transition-all duration-300">
-      <div class="text-center mb-6">
-        <div class="bg-primary-100 text-primary-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i data-lucide="landmark" class="w-8 h-8"></i>
-        </div>
-        <h4 class="text-2xl font-bold font-serif text-stone-900">銀行轉帳資訊</h4>
-        <p class="text-stone-500 text-sm mt-1">請於 3 日內完成匯款，以利為您保留商品</p>
-      </div>
-      <div class="bg-stone-50 p-4 rounded-2xl space-y-3 text-sm border border-stone-100">
-        <div class="flex justify-between"><span class="text-stone-500">銀行名稱</span><span class="font-bold text-stone-800">台灣銀行 (004)</span></div>
-        <div class="flex justify-between"><span class="text-stone-500">分行名稱</span><span class="font-bold text-stone-800">信義分行</span></div>
-        <div class="flex justify-between"><span class="text-stone-500">戶名</span><span class="font-bold text-stone-800">綠意森活館有限公司</span></div>
-        <div class="flex justify-between items-center">
-          <span class="text-stone-500">轉帳帳號</span>
-          <div class="flex items-center space-x-2">
-            <span id="bank-account-num" class="font-bold text-primary-800 font-mono">1234-5678-9012</span>
-            <button onclick="copyBankAccount()" class="text-stone-400 hover:text-primary-700 p-1 rounded hover:bg-stone-200 transition"><i data-lucide="copy" class="w-4 h-4"></i></button>
-          </div>
-        </div>
-        <div class="flex justify-between border-t border-stone-200 pt-3"><span class="text-stone-500">應繳總額</span><span id="bank-total-amount" class="font-bold text-lg text-red-600">NT$ 0</span></div>
-      </div>
-      <div class="mt-6 space-y-3">
-        <p class="text-xs text-stone-400 leading-relaxed">※ 匯款完成後，請至「聯絡我們」或透過 LINE 告知您的姓名、電話與匯款帳號後五碼，我們將儘速為您安排出貨。</p>
-        <button onclick="closeBankModal()" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-xl transition">我知道了</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= TOAST NOTIFICATION ================= -->
-  <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-stone-900/95 backdrop-blur-sm text-white px-6 py-3 rounded-full shadow-2xl z-50 flex items-center space-x-2 transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
-    <i id="toast-icon" data-lucide="info" class="w-5 h-5 text-primary-400"></i>
-    <span id="toast-message" class="text-sm font-medium">提示訊息</span>
-  </div>
-
-
-  <!-- ================= JAVASCRIPT ================= -->
-  <script>
-    // API Configuration
-    const BASE_URL = 'https://grocery-496707.de.r.appspot.com/api';
-    const API_KEY = '2fc1cf4b-a31f-4ebb-803b-f6f082d13240';
-
-    // Global State
-    const state = {
-      shopInfo: null,
-      products: [],
-      categories: [],
-      cart: JSON.parse(localStorage.getItem('cart') || '[]'),
-      currentTab: 'home',
-      activeProductId: null,
-      selectedCategory: null,
-      searchQuery: '',
-      apiError: false,
-      shopInfoError: false
-    };
-
-    // Store Story & Description (Fallback/Default values)
-    const storeStory = `我們深信，健康的身體源自於純淨的飲食。綠意森活館創立於 2020 年，致力於為您尋找在地最優質、無農藥殘留的有機蔬果與天然食品。
-
-我們與在地小農建立長期合作關係，確保每一份送到您手中的食材，都保有最初的鮮甜與營養。讓我們一起回歸自然，品味純粹。`;
-
-    // API Fetch Helper
-    async function apiFetch(endpoint, options = {}) {
-      const url = `${BASE_URL}${endpoint}`;
-      const headers = {
-        'X-API-Key': API_KEY,
-        'Content-Type': 'application/json',
-        ...options.headers
-      };
-      try {
-        const response = await fetch(url, { ...options, headers });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-      } catch (error) {
-        console.error(`API Fetch Error (${endpoint}):`, error);
-        throw error;
-      }
-    }
-
-    // Initialize App
-    window.addEventListener('DOMContentLoaded', async () => {
-      lucide.createIcons();
-      updateCartCount();
-      
-      // Load Shop Info
-      try {
-        state.shopInfo = await apiFetch('/shop-info');
-        renderShopInfo();
-      } catch (error) {
-        state.shopInfoError = true;
-        console.error("Failed to load shop info");
-      }
-
-      // Load Products & Categories
-      await loadInitialData();
-    });
-
-    async function loadInitialData() {
-      try {
-        // Fetch products
-        state.products = await apiFetch('/products');
-        renderLatestProducts();
-        renderAllProducts();
-
-        // Fetch categories
-        state.categories = await apiFetch('/categories');
-        renderCategories();
-        
-        hideGlobalError();
-      } catch (error) {
-        state.apiError = true;
-        showGlobalError("網頁顯示異常，請重新整理頁面。");
-      }
-    }
-
-    // Global Error Handling
-    function showGlobalError(msg) {
-      const banner = document.getElementById('global-error-banner');
-      const msgEl = document.getElementById('global-error-message');
-      msgEl.textContent = msg;
-      banner.classList.remove('hidden');
-    }
-
-    function hideGlobalError() {
-      document.getElementById('global-error-banner').classList.add('hidden');
-    }
-
-    // Navigation System
-    function navigateTo(tabId, productId = null) {
-      state.currentTab = tabId;
-      
-      // Update active nav link styling
-      document.querySelectorAll('.nav-link').forEach(link => {
-        if (link.getAttribute('data-tab') === tabId) {
-          link.classList.add('text-primary-700', 'border-primary-700');
-          link.classList.remove('text-stone-600', 'border-transparent');
-        } else {
-          link.classList.remove('text-primary-700', 'border-primary-700');
-          link.classList.add('text-stone-600', 'border-transparent');
-        }
-      });
-
-      // Hide all sections
-      document.querySelectorAll('.page-section').forEach(section => {
-        section.classList.remove('active');
-      });
-
-      // Show target section
-      const targetSection = document.getElementById(`page-${tabId}`);
-      if (targetSection) {
-        targetSection.classList.add('active');
-      }
-
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Handle specific tab initializations
-      if (tabId === 'about') {
-        loadAboutPage();
-      } else if (tabId === 'contact') {
-        loadContactPage();
-      } else if (tabId === 'product-detail' && productId) {
-        loadProductDetailPage(productId);
-      }
-    }
-
-    // Mobile Menu Toggle
-    function toggleMobileMenu(show) {
-      const menu = document.getElementById('mobile-menu');
-      const drawer = menu.querySelector('div');
-      if (show) {
-        menu.classList.remove('hidden');
-        setTimeout(() => {
-          menu.classList.add('opacity-100');
-          drawer.classList.remove('translate-x-full');
-        }, 10);
-      } else {
-        menu.classList.remove('opacity-100');
-        drawer.classList.add('translate-x-full');
-        setTimeout(() => {
-          menu.classList.add('hidden');
-        }, 300);
-      }
-    }
-
-    // Toast Notification
-    function showToast(message, iconName = 'info') {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toast-message');
-      const toastIcon = document.getElementById('toast-icon');
-      
-      toastMsg.textContent = message;
-      toastIcon.setAttribute('data-lucide', iconName);
-      lucide.createIcons();
-
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
-    }
-
-    // ================= RENDER HOME PAGE =================
-    function renderLatestProducts() {
-      const grid = document.getElementById('latest-products-grid');
-      if (!state.products || state.products.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center py-10 text-stone-400">目前無商品上架</div>`;
-        return;
-      }
-
-      // Get latest 10 products
-      const latest = state.products.slice(0, 10);
-      grid.innerHTML = latest.map(product => renderProductCard(product)).join('');
-      lucide.createIcons();
-    }
-
-    function renderProductCard(product) {
-      const isPaymentDisabled = state.shopInfo?.payment_settings?.disable_payment ?? true;
-      const imageUrl = product.images && product.images.length > 0 ? product.images[0] : 'https://images.unsplash.com/photo-1610348725531-843dff14722a?auto=format&fit=crop&w=600&q=80';
-      
-      return `
-        <div class="bg-white rounded-2xl border border-stone-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group">
-          <div class="relative aspect-square overflow-hidden bg-stone-100 cursor-pointer" onclick="navigateTo('product-detail', '${product.id}')">
-            <img src="${imageUrl}" alt="${product.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-primary-800 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">${product.category_name || '精選'}</span>
-          </div>
-          <div class="p-4 flex-grow flex flex-col justify-between">
-            <div class="cursor-pointer" onclick="navigateTo('product-detail', '${product.id}')">
-              <span class="text-xs text-stone-400 font-medium block mb-1">${product.brand || '綠意森活'}</span>
-              <h4 class="font-bold text-stone-800 group-hover:text-primary-700 transition line-clamp-2 text-sm md:text-base mb-2">${product.name}</h4>
-            </div>
-            <div class="mt-4">
-              <div class="flex items-baseline justify-between mb-3">
-                <span class="text-primary-700 font-bold text-lg">NT$ ${parseFloat(product.price).toLocaleString()}</span>
-              </div>
-              ${!isPaymentDisabled ? `
-                <button onclick="addToCart('${product.id}')" class="w-full bg-primary-50 hover:bg-primary-600 text-primary-800 hover:text-white font-bold py-2 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2 text-sm">
-                  <i data-lucide="shopping-cart" class="w-4 h-4"></i>
-                  <span>加入購物車</span>
-                </button>
-              ` : ''}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    // ================= RENDER PRODUCTS PAGE =================
-    function renderCategories() {
-      const container = document.getElementById('categories-container');
-      let html = `
-        <button onclick="filterByCategory(null)" class="px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${!state.selectedCategory ? 'bg-primary-800 text-white shadow-md' : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'}">
-          全部商品
-        </button>
-      `;
-      
-      state.categories.forEach(cat => {
-        const isSelected = state.selectedCategory === cat.id;
-        html += `
-          <button onclick="filterByCategory('${cat.id}')" class="px-4 py-2 rounded-full text-sm font-medium transition whitespace-nowrap ${isSelected ? 'bg-primary-800 text-white shadow-md' : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'}">
-            ${cat.name}
-          </button>
-        `;
-      });
-      
-      container.innerHTML = html;
-    }
-
-    function renderAllProducts() {
-      const grid = document.getElementById('all-products-grid');
-      const noResults = document.getElementById('no-products-found');
-      
-      // Filter & Search logic
-      let filtered = state.products;
-
-      if (state.selectedCategory) {
-        filtered = filtered.filter(p => p.category_id === state.selectedCategory);
-      }
-
-      if (state.searchQuery) {
-        const query = state.searchQuery.toLowerCase();
-        filtered = filtered.filter(p => 
-          p.name.toLowerCase().includes(query) || 
-          (p.brand && p.brand.toLowerCase().includes(query)) ||
-          (p.description && p.description.toLowerCase().includes(query))
-        );
-      }
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '';
-        noResults.classList.remove('hidden');
-      } else {
-        noResults.classList.add('hidden');
-        grid.innerHTML = filtered.map(product => renderProductCard(product)).join('');
-      }
-      lucide.createIcons();
-    }
-
-    function filterByCategory(catId) {
-      state.selectedCategory = catId;
-      renderCategories();
-      renderAllProducts();
-    }
-
-    // Search Input Event Listener
-    document.getElementById('search-input').addEventListener('input', (e) => {
-      state.searchQuery = e.target.value;
-      renderAllProducts();
-    });
-
-
-    // ================= PRODUCT DETAIL PAGE =================
-    async function loadProductDetailPage(productId) {
-      const content = document.getElementById('product-detail-content');
-      content.innerHTML = `
-        <div class="animate-pulse space-y-8">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-stone-200 rounded-2xl aspect-square"></div>
-            <div class="space-y-4">
-              <div class="h-8 bg-stone-200 rounded w-3/4"></div>
-              <div class="h-6 bg-stone-200 rounded w-1/4"></div>
-              <div class="h-24 bg-stone-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      try {
-        const product = await apiFetch(`/products/${productId}`);
-        const isPaymentDisabled = state.shopInfo?.payment_settings?.disable_payment ?? true;
-        const imageUrl = product.images && product.images.length > 0 ? product.images[0] : 'https://images.unsplash.com/photo-1610348725531-843dff14722a?auto=format&fit=crop&w=600&q=80';
-
-        // Specs rendering
-        let specsHtml = '';
-        if (product.specs && Object.keys(product.specs).length > 0) {
-          specsHtml = `
-            <div class="mt-8 border-t border-stone-100 pt-6">
-              <h5 class="font-bold text-stone-900 mb-4">商品規格</h5>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                ${Object.entries(product.specs).map(([key, val]) => `
-                  <div class="flex justify-between border-b border-stone-50 pb-2 text-sm">
-                    <span class="text-stone-400">${key}</span>
-                    <span class="font-medium text-stone-800">${val}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        }
-
-        content.innerHTML = `
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <!-- Left: Images -->
-            <div class="lg:col-span-6 space-y-4">
-              <div class="rounded-2xl overflow-hidden bg-stone-50 aspect-square border border-stone-100">
-                <img id="detail-main-image" src="${imageUrl}" alt="${product.name}" class="w-full h-full object-cover">
-              </div>
-              ${product.images && product.images.length > 1 ? `
-                <div class="flex gap-2 overflow-x-auto pb-2">
-                  ${product.images.map((img, idx) => `
-                    <button onclick="document.getElementById('detail-main-image').src='${img}'" class="w-20 h-20 rounded-lg overflow-hidden border border-stone-200 hover:border-primary-600 focus:outline-none flex-shrink-0">
-                      <img src="${img}" class="w-full h-full object-cover">
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 hover:text-primary-500 focus:outline-none">
+                        <i class="fas fa-bars text-2xl"></i>
                     </button>
-                  `).join('')}
                 </div>
-              ` : ''}
             </div>
-
-            <!-- Right: Info -->
-            <div class="lg:col-span-6 flex flex-col justify-between">
-              <div>
-                <span class="text-primary-700 font-bold text-sm tracking-widest uppercase block mb-2">${product.category_name || '精選商品'}</span>
-                <h3 class="text-3xl font-bold text-stone-900 mb-2 font-serif">${product.name}</h3>
-                <span class="text-stone-400 text-sm block mb-6">品牌: ${product.brand || '綠意森活'}</span>
-                
-                <div class="text-2xl font-bold text-primary-800 mb-6">NT$ ${parseFloat(product.price).toLocaleString()}</div>
-                
-                <div class="prose prose-stone max-w-none">
-                  <h5 class="font-bold text-stone-900 mb-2">商品描述</h5>
-                  <p class="text-stone-600 leading-relaxed whitespace-pre-line">${product.description || '暫無描述'}</p>
-                </div>
-
-                ${specsHtml}
-              </div>
-
-              <!-- Action Buttons -->
-              ${!isPaymentDisabled ? `
-                <div class="mt-8 pt-6 border-t border-stone-100 flex flex-col sm:flex-row gap-4">
-                  <button onclick="addToCart('${product.id}')" class="flex-1 bg-primary-50 hover:bg-primary-100 text-primary-800 font-bold py-4 rounded-xl transition flex items-center justify-center space-x-2">
-                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                    <span>加入購物車</span>
-                  </button>
-                  <button onclick="directBuy('${product.id}')" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition flex items-center justify-center space-x-2">
-                    <i data-lucide="credit-card" class="w-5 h-5"></i>
-                    <span>直接購買</span>
-                  </button>
-                </div>
-              ` : ''}
-            </div>
-          </div>
-        `;
-        lucide.createIcons();
-      } catch (error) {
-        content.innerHTML = `
-          <div class="text-center py-12">
-            <i data-lucide="alert-triangle" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
-            <h4 class="text-lg font-bold text-stone-800">無法載入商品詳細資訊</h4>
-            <p class="text-stone-500 mt-2">請重新整理頁面或稍後再試。</p>
-          </div>
-        `;
-        lucide.createIcons();
-      }
-    }
-
-
-    // ================= ABOUT US PAGE =================
-    function loadAboutPage() {
-      const img = document.getElementById('about-shop-image');
-      const skeleton = document.getElementById('about-image-skeleton');
-      const storyEl = document.getElementById('about-shop-story');
-
-      // Set Story
-      storyEl.textContent = storeStory;
-
-      // Set Image
-      if (state.shopInfo && state.shopInfo.shop_photo_url) {
-        img.src = state.shopInfo.shop_photo_url;
-        img.onload = () => {
-          img.classList.remove('opacity-0');
-          skeleton.classList.add('hidden');
-        };
-      } else {
-        img.src = 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1000&q=80';
-        img.onload = () => {
-          img.classList.remove('opacity-0');
-          skeleton.classList.add('hidden');
-        };
-      }
-    }
-
-    function renderShopInfo() {
-      // Update dynamic titles or logos if needed
-      if (state.shopInfo && state.shopInfo.name) {
-        document.title = state.shopInfo.name;
-      }
-    }
-
-
-    // ================= CONTACT US PAGE =================
-    async function loadContactPage() {
-      const container = document.getElementById('contact-info-list');
-      container.innerHTML = `
-        <div class="animate-pulse space-y-4">
-          <div class="h-12 bg-stone-200 rounded-xl"></div>
-          <div class="h-12 bg-stone-200 rounded-xl"></div>
-          <div class="h-12 bg-stone-200 rounded-xl"></div>
         </div>
-      `;
 
-      try {
-        const contacts = await apiFetch('/contact-info');
-        if (!contacts || contacts.length === 0) {
-          container.innerHTML = `<p class="text-stone-400">暫無聯絡資訊</p>`;
-          return;
-        }
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-earth-200 px-4 pt-2 pb-4 space-y-1 shadow-lg">
+            <a href="#home" onclick="navigateTo('home')" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-500">首頁</a>
+            <a href="#products" onclick="navigateTo('products')" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-500">精選商品</a>
+            <a href="#about" onclick="navigateTo('about')" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-500">關於我們</a>
+            <a href="#contact" onclick="navigateTo('contact')" class="mobile-nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-primary-50 hover:text-primary-500">聯絡我們</a>
+        </div>
+    </header>
 
-        container.innerHTML = contacts.map(contact => {
-          let icon = 'info';
-          let label = '';
-          let link = '#';
-          let clickHandler = '';
-
-          switch (contact.type) {
-            case 'email':
-              icon = 'mail';
-              label = '電子郵件';
-              link = `mailto:${contact.value}`;
-              break;
-            case 'phone':
-              icon = 'phone';
-              label = '聯絡電話';
-              link = `tel:${contact.value}`;
-              break;
-            case 'address':
-              icon = 'map-pin';
-              label = '門市地址';
-              link = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contact.value)}`;
-              break;
-            case 'line':
-              icon = 'message-circle';
-              label = 'LINE 官方帳號';
-              link = contact.value.startsWith('http') ? contact.value : `https://line.me/R/ti/p/~${contact.value}`;
-              break;
-            case 'line_qr':
-              icon = 'qr-code';
-              label = 'LINE QR Code';
-              link = contact.value;
-              break;
-          }
-
-          if (contact.type === 'line_qr') {
-            return `
-              <div class="bg-white p-4 rounded-2xl border border-stone-100 flex items-center space-x-4 shadow-sm">
-                <div class="bg-primary-100 text-primary-800 p-3 rounded-xl"><i data-lucide="qr-code" class="w-6 h-6"></i></div>
-                <div>
-                  <span class="text-xs text-stone-400 font-medium block">${label}</span>
-                  <a href="${link}" target="_blank" class="text-primary-800 hover:underline font-bold text-sm">點擊查看 QR Code</a>
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        
+        <!-- Error Alert Banner -->
+        <div id="error-banner" class="hidden max-w-7xl mx-auto mt-4 px-4 sm:px-6 lg:px-8">
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-red-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700 font-medium">
+                            網頁顯示異常，請重新整理頁面。
+                        </p>
+                    </div>
                 </div>
-              </div>
-            `;
-          }
-
-          return `
-            <a href="${link}" target="_blank" class="bg-white p-4 rounded-2xl border border-stone-100 flex items-center space-x-4 shadow-sm hover:shadow-md hover:border-primary-200 transition group">
-              <div class="bg-primary-100 text-primary-800 p-3 rounded-xl group-hover:bg-primary-600 group-hover:text-white transition"><i data-lucide="${icon}" class="w-6 h-6"></i></div>
-              <div>
-                <span class="text-xs text-stone-400 font-medium block">${label}</span>
-                <span class="font-bold text-stone-800 group-hover:text-primary-800 transition">${contact.value}</span>
-              </div>
-            </a>
-          `;
-        }).join('');
-        lucide.createIcons();
-      } catch (error) {
-        container.innerHTML = `<p class="text-red-500">無法載入聯絡資訊，請重新整理頁面。</p>`;
-      }
-    }
-
-    async function handleContactSubmit(event) {
-      event.preventDefault();
-      const form = event.target;
-      const btn = document.getElementById('submit-form-btn');
-      const originalBtnHtml = btn.innerHTML;
-
-      // Loading state
-      btn.disabled = true;
-      btn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> <span>傳送中...</span>`;
-      lucide.createIcons();
-
-      const formData = {
-        name: form.name.value,
-        email: form.email.value,
-        phone: form.phone.value || '',
-        description: form.description.value || ''
-      };
-
-      try {
-        const res = await apiFetch('/submit_form', {
-          method: 'POST',
-          body: JSON.stringify(formData)
-        });
-
-        if (res.status === 'success') {
-          showToast('訊息已成功送出！我們將儘速與您聯絡。', 'check-circle');
-          form.reset();
-        } else {
-          showToast('送出失敗，請稍後再試。', 'alert-triangle');
-        }
-      } catch (error) {
-        showToast('系統異常，請重新整理網頁再次嘗試。', 'alert-triangle');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = originalBtnHtml;
-        lucide.createIcons();
-      }
-    }
-
-
-    // ================= SHOPPING CART & CHECKOUT =================
-    function toggleCart(show) {
-      // Check if shopInfo is loaded and payment is disabled
-      if (state.shopInfoError) {
-        alert('購物流程出現錯誤，請重新整理網頁再次嘗試。');
-        return;
-      }
-
-      if (state.shopInfo?.payment_settings?.disable_payment) {
-        showToast('目前暫未啟用購物功能。', 'info');
-        return;
-      }
-
-      const drawer = document.getElementById('cart-drawer');
-      const inner = drawer.querySelector('div');
-      if (show) {
-        renderCartItems();
-        drawer.classList.remove('hidden');
-        setTimeout(() => {
-          drawer.classList.add('opacity-100');
-          inner.classList.remove('translate-x-full');
-        }, 10);
-      } else {
-        drawer.classList.remove('opacity-100');
-        inner.classList.add('translate-x-full');
-        setTimeout(() => {
-          drawer.classList.add('hidden');
-        }, 300);
-        // Reset checkout form state
-        document.getElementById('checkout-form-container').classList.add('hidden');
-        document.getElementById('checkout-btn').querySelector('span').textContent = '前往結帳';
-      }
-    }
-
-    function updateCartCount() {
-      const countEl = document.getElementById('cart-count');
-      const totalCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
-      countEl.textContent = totalCount;
-    }
-
-    function addToCart(productId) {
-      if (state.shopInfoError) {
-        alert('購物流程出現錯誤，請重新整理網頁再次嘗試。');
-        return;
-      }
-
-      const product = state.products.find(p => p.id === productId);
-      if (!product) return;
-
-      const existing = state.cart.find(item => item.id === productId);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        state.cart.push({
-          id: product.id,
-          name: product.name,
-          price: parseFloat(product.price),
-          image: product.images && product.images.length > 0 ? product.images[0] : '',
-          quantity: 1
-        });
-      }
-
-      localStorage.setItem('cart', JSON.stringify(state.cart));
-      updateCartCount();
-      showToast(`已將 ${product.name} 加入購物車！`, 'shopping-bag');
-    }
-
-    function directBuy(productId) {
-      addToCart(productId);
-      navigateTo('products');
-      toggleCart(true);
-    }
-
-    function updateCartItemQty(productId, delta) {
-      const item = state.cart.find(item => item.id === productId);
-      if (!item) return;
-
-      item.quantity += delta;
-      if (item.quantity <= 0) {
-        state.cart = state.cart.filter(item => item.id !== productId);
-      }
-
-      localStorage.setItem('cart', JSON.stringify(state.cart));
-      updateCartCount();
-      renderCartItems();
-    }
-
-    function removeCartItem(productId) {
-      state.cart = state.cart.filter(item => item.id !== productId);
-      localStorage.setItem('cart', JSON.stringify(state.cart));
-      updateCartCount();
-      renderCartItems();
-    }
-
-    function renderCartItems() {
-      const container = document.getElementById('cart-items-container');
-      const totalAmountEl = document.getElementById('cart-total-amount');
-      
-      if (state.cart.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-20 text-stone-400">
-            <i data-lucide="shopping-cart" class="w-12 h-12 mx-auto mb-4 opacity-50"></i>
-            <p>您的購物車是空的</p>
-          </div>
-        `;
-        totalAmountEl.textContent = 'NT$ 0';
-        document.getElementById('checkout-btn').style.display = 'none';
-        document.getElementById('checkout-form-container').classList.add('hidden');
-        return;
-      }
-
-      document.getElementById('checkout-btn').style.display = 'flex';
-
-      let total = 0;
-      container.innerHTML = state.cart.map(item => {
-        const subtotal = item.price * item.quantity;
-        total += subtotal;
-        return `
-          <div class="flex items-center space-x-4 bg-white p-3 rounded-xl border border-stone-100 shadow-sm">
-            <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg bg-stone-50">
-            <div class="flex-grow">
-              <h6 class="font-bold text-stone-800 text-sm line-clamp-1">${item.name}</h6>
-              <span class="text-xs text-primary-700 font-bold block mt-1">NT$ ${item.price.toLocaleString()}</span>
-              <div class="flex items-center space-x-2 mt-2">
-                <button onclick="updateCartItemQty('${item.id}', -1)" class="w-6 h-6 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition"><i data-lucide="minus" class="w-3 h-3"></i></button>
-                <span class="text-sm font-bold w-6 text-center">${item.quantity}</span>
-                <button onclick="updateCartItemQty('${item.id}', 1)" class="w-6 h-6 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-600 transition"><i data-lucide="plus" class="w-3 h-3"></i></button>
-              </div>
             </div>
-            <button onclick="removeCartItem('${item.id}')" class="text-stone-300 hover:text-red-500 p-1 transition"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-          </div>
-        `;
-      }).join('');
+        </div>
 
-      totalAmountEl.textContent = `NT$ ${total.toLocaleString()}`;
-      lucide.createIcons();
-    }
+        <!-- SECTION: HOME -->
+        <section id="section-home" class="page-section">
+            <!-- Hero Banner -->
+            <div class="relative bg-primary-50 overflow-hidden py-16 sm:py-24">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
+                        <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+                            <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-primary-100 text-primary-600 mb-4">
+                                <i class="fas fa-star mr-1.5"></i> 100% 有機與天然
+                            </span>
+                            <h1 class="text-4xl tracking-tight font-extrabold text-primary-700 sm:text-5xl md:text-6xl">
+                                綠意生機
+                                <span class="block text-primary-500 text-3xl sm:text-4xl mt-2">GreenLife Organic Supermarket</span>
+                            </h1>
+                            <p class="mt-3 text-base text-gray-600 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                                精選有機蔬菜、當季水果、無添加五穀雜糧、頂級冷壓初榨橄欖油及各式健康天然食品。產地直送，新鮮看得見。
+                            </p>
+                            <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+                                <button onclick="navigateTo('products')" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                                    立即選購 <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
+                            <div class="relative mx-auto w-full rounded-lg shadow-lg lg:max-w-md overflow-hidden">
+                                <img class="w-full h-80 object-cover" src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" alt="Organic Vegetables">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    function handleCheckoutStep() {
-      if (state.shopInfoError) {
-        alert('購物流程出現錯誤，請重新整理網頁再次嘗試。');
-        return;
-      }
+            <!-- Latest Products -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-primary-700">最新上架</h2>
+                        <p class="text-gray-500 mt-1">每日新鮮直送，嚴選健康好物</p>
+                    </div>
+                    <button onclick="navigateTo('products')" class="text-primary-500 hover:text-primary-600 font-medium flex items-center">
+                        查看全部 <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+                <!-- Product Grid -->
+                <div id="home-products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <!-- Dynamic Loading -->
+                </div>
+            </div>
+        </section>
 
-      const formContainer = document.getElementById('checkout-form-container');
-      const checkoutBtn = document.getElementById('checkout-btn');
+        <!-- SECTION: PRODUCTS -->
+        <section id="section-products" class="page-section hidden py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 space-y-4 md:space-y-0">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-primary-700">精選商品</h1>
+                        <p class="text-gray-500 mt-1">探索我們的有機與天然食品系列</p>
+                    </div>
+                    <!-- Search Bar -->
+                    <div class="relative max-w-md w-full">
+                        <input type="text" id="search-input" placeholder="搜尋商品名稱、品牌..." class="w-full pl-10 pr-4 py-2 border border-earth-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                </div>
 
-      if (formContainer.classList.contains('hidden')) {
-        // Step 1: Show checkout form
-        formContainer.classList.remove('hidden');
-        checkoutBtn.querySelector('span').textContent = '確認送出訂單';
-        renderPaymentMethods();
-      } else {
-        // Step 2: Submit Order
-        submitOrder();
-      }
-    }
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                    <!-- Sidebar Categories -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-xl border border-earth-200 shadow-sm sticky top-24">
+                            <h3 class="text-lg font-bold text-primary-700 mb-4 flex items-center">
+                                <i class="fas fa-filter mr-2"></i> 商品分類
+                            </h3>
+                            <div id="categories-list" class="space-y-2">
+                                <!-- Dynamic Categories -->
+                            </div>
+                        </div>
+                    </div>
 
-    function renderPaymentMethods() {
-      const container = document.getElementById('payment-methods-container');
-      const settings = state.shopInfo?.payment_settings;
-      
-      let html = '';
-      if (settings?.is_credit_card_enabled) {
-        html += `
-          <label class="border border-stone-200 rounded-xl p-3 flex items-center space-x-2 cursor-pointer hover:bg-stone-50 transition">
-            <input type="radio" name="payment_method" value="credit_card" checked class="text-primary-600 focus:ring-primary-600">
-            <span class="text-sm font-medium text-stone-700">線上刷卡</span>
-          </label>
-        `;
-      }
-      if (settings?.is_bank_transfer_enabled) {
-        html += `
-          <label class="border border-stone-200 rounded-xl p-3 flex items-center space-x-2 cursor-pointer hover:bg-stone-50 transition">
-            <input type="radio" name="payment_method" value="bank_transfer" ${!settings?.is_credit_card_enabled ? 'checked' : ''} class="text-primary-600 focus:ring-primary-600">
-            <span class="text-sm font-medium text-stone-700">銀行轉帳</span>
-          </label>
-        `;
-      }
+                    <!-- Product List -->
+                    <div class="lg:col-span-3">
+                        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                            <!-- Dynamic Products -->
+                        </div>
+                        <!-- Empty State -->
+                        <div id="products-empty" class="hidden text-center py-16">
+                            <i class="fas fa-search text-5xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500 text-lg">找不到符合條件的商品</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      if (!html) {
-        container.innerHTML = `<p class="text-xs text-red-500 col-span-2">目前無可用的付款方式，請聯絡客服。</p>`;
-      } else {
-        container.innerHTML = html;
-      }
-    }
+        <!-- SECTION: PRODUCT DETAIL -->
+        <section id="section-product-detail" class="page-section hidden py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Breadcrumb -->
+                <nav class="flex mb-8 text-sm text-gray-500">
+                    <a href="#products" onclick="navigateTo('products')" class="hover:text-primary-500">精選商品</a>
+                    <span class="mx-2">/</span>
+                    <span id="detail-breadcrumb-category" class="hover:text-primary-500">分類</span>
+                    <span class="mx-2">/</span>
+                    <span id="detail-breadcrumb-name" class="text-gray-800 font-medium">商品名稱</span>
+                </nav>
 
-    async function submitOrder() {
-      const name = document.getElementById('checkout-name').value.trim();
-      const phone = document.getElementById('checkout-phone').value.trim();
-      const address = document.getElementById('checkout-address').value.trim();
-      const paymentMethodEl = document.querySelector('input[name="payment_method"]:checked');
+                <div id="product-detail-content" class="bg-white rounded-2xl border border-earth-200 shadow-sm overflow-hidden">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </section>
 
-      if (!name || !phone || !address) {
-        showToast('請填寫完整的收件資訊！', 'alert-triangle');
-        return;
-      }
+        <!-- SECTION: ABOUT -->
+        <section id="section-about" class="page-section hidden py-16 bg-earth-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
+                    <!-- Left: Image -->
+                    <div class="lg:col-span-5 mb-8 lg:mb-0">
+                        <div class="rounded-2xl overflow-hidden shadow-xl border-4 border-white">
+                            <img id="about-shop-photo" class="w-full h-[450px] object-cover" src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" alt="Shop Photo">
+                        </div>
+                    </div>
+                    <!-- Right: Story -->
+                    <div class="lg:col-span-7">
+                        <span class="text-primary-500 font-bold tracking-wider uppercase text-sm">Our Story</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-primary-700 mt-2 mb-6">關於綠意生機</h2>
+                        <div id="about-story-text" class="text-gray-600 leading-relaxed text-lg space-y-4 whitespace-pre-line">
+                            我們深信，大自然是最好的醫生。綠意生機創立於2018年，致力於將最純淨、無毒、有機的在地農產品與進口食材帶入每個家庭。我們與在地小農深度合作，嚴格把關每一道工序，確保您吃下的每一口都是健康與安心。讓我們一起，用食物改變世界，重拾與大自然的連結。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      if (!paymentMethodEl) {
-        showToast('請選擇付款方式！', 'alert-triangle');
-        return;
-      }
+        <!-- SECTION: CONTACT -->
+        <section id="section-contact" class="page-section hidden py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h2 class="text-3xl font-extrabold text-primary-700">聯絡我們</h2>
+                    <p class="text-gray-500 mt-2">有任何問題或建議嗎？歡迎隨時與我們聯繫，我們將竭誠為您服務。</p>
+                </div>
 
-      const paymentMethod = paymentMethodEl.value;
-      const totalAmount = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-      const itemDesc = state.cart.map(item => `${item.name} x ${item.quantity}`).join(', ');
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    <!-- Contact Info -->
+                    <div class="lg:col-span-5 space-y-8">
+                        <div class="bg-white p-8 rounded-2xl border border-earth-200 shadow-sm">
+                            <h3 class="text-xl font-bold text-primary-700 mb-6">聯絡資訊</h3>
+                            <div id="contact-info-list" class="space-y-6">
+                                <!-- Dynamic Contact Info -->
+                            </div>
+                        </div>
+                    </div>
 
-      if (paymentMethod === 'bank_transfer') {
-        // Show Bank Transfer Modal
-        document.getElementById('bank-total-amount').textContent = `NT$ ${totalAmount.toLocaleString()}`;
-        toggleCart(false);
-        openBankModal();
-        // Clear Cart
-        state.cart = [];
-        localStorage.removeItem('cart');
-        updateCartCount();
-      } else if (paymentMethod === 'credit_card') {
-        // Call Create Payment API
-        const checkoutBtn = document.getElementById('checkout-btn');
-        checkoutBtn.disabled = true;
-        checkoutBtn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> <span>金流引導中...</span>`;
-        lucide.createIcons();
+                    <!-- Contact Form -->
+                    <div class="lg:col-span-7">
+                        <div class="bg-white p-8 rounded-2xl border border-earth-200 shadow-sm">
+                            <h3 class="text-xl font-bold text-primary-700 mb-6">發送訊息</h3>
+                            <form id="contact-form" class="space-y-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="form-name" class="block text-sm font-medium text-gray-700">姓名 <span class="text-red-500">*</span></label>
+                                        <input type="text" id="form-name" required class="mt-1 block w-full border border-earth-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="form-email" class="block text-sm font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+                                        <input type="email" id="form-email" required class="mt-1 block w-full border border-earth-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="form-phone" class="block text-sm font-medium text-gray-700">電話 <span class="text-gray-400">(選填)</span></label>
+                                    <input type="tel" id="form-phone" class="mt-1 block w-full border border-earth-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                </div>
+                                <div>
+                                    <label for="form-desc" class="block text-sm font-medium text-gray-700">描述 <span class="text-gray-400">(最多 500 字，選填)</span></label>
+                                    <textarea id="form-desc" rows="4" maxlength="500" class="mt-1 block w-full border border-earth-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+                                </div>
+                                <button type="submit" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                                    送出訊息 <i class="fas fa-paper-plane ml-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        try {
-          const res = await apiFetch('/create-payment', {
-            method: 'POST',
-            body: JSON.stringify({
-              amount: totalAmount,
-              item_desc: itemDesc.substring(0, 50), // Limit length for gateway
-              customer_data: { name, phone, address }
-            })
-          });
+        <!-- SECTION: CART -->
+        <section id="section-cart" class="page-section hidden py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-extrabold text-primary-700 mb-8">您的購物車</h1>
 
-          if (res.status === 'success') {
-            // Create dynamic form and submit to Newebpay
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = res.newebpay_url;
+                <div id="cart-container" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Cart Items -->
+                    <div class="lg:col-span-8 space-y-4">
+                        <div id="cart-items-list" class="space-y-4">
+                            <!-- Dynamic Cart Items -->
+                        </div>
+                    </div>
 
-            const params = {
-              MerchantID: res.MerchantID,
-              TradeInfo: res.TradeInfo,
-              TradeSha: res.TradeSha,
-              Version: res.Version
+                    <!-- Order Summary & Checkout -->
+                    <div class="lg:col-span-4">
+                        <div class="bg-white p-6 rounded-2xl border border-earth-200 shadow-sm sticky top-24">
+                            <h3 class="text-lg font-bold text-primary-700 mb-4">訂單摘要</h3>
+                            <div class="flow-root">
+                                <dl class="-my-4 text-sm divide-y divide-earth-200">
+                                    <div class="py-4 flex items-center justify-between">
+                                        <dt class="text-gray-600">商品小計</dt>
+                                        <dd id="cart-subtotal" class="font-medium text-gray-900">NT$ 0</dd>
+                                    </div>
+                                    <div class="py-4 flex items-center justify-between">
+                                        <dt class="text-gray-600">運費</dt>
+                                        <dd class="font-medium text-green-600">免運費</dd>
+                                    </div>
+                                    <div class="py-4 flex items-center justify-between">
+                                        <dt class="text-base font-bold text-gray-900">總計</dt>
+                                        <dd id="cart-total" class="text-base font-bold text-primary-600">NT$ 0</dd>
+                                    </div>
+                                </dl>
+                            </div>
+
+                            <!-- Checkout Form -->
+                            <div class="mt-6 border-t border-earth-200 pt-6">
+                                <h4 class="text-sm font-bold text-gray-900 mb-4">收件資訊</h4>
+                                <form id="checkout-form" class="space-y-4">
+                                    <div>
+                                        <label for="checkout-name" class="block text-xs font-medium text-gray-700">姓名 *</label>
+                                        <input type="text" id="checkout-name" required class="mt-1 block w-full border border-earth-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="checkout-phone" class="block text-xs font-medium text-gray-700">電話 *</label>
+                                        <input type="tel" id="checkout-phone" required class="mt-1 block w-full border border-earth-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500">
+                                    </div>
+                                    <div>
+                                        <label for="checkout-address" class="block text-xs font-medium text-gray-700">地址 *</label>
+                                        <input type="text" id="checkout-address" required class="mt-1 block w-full border border-earth-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500">
+                                    </div>
+
+                                    <div class="pt-4">
+                                        <label class="block text-xs font-medium text-gray-700 mb-2">付款方式 *</label>
+                                        <div class="space-y-2">
+                                            <label id="payment-credit-card-label" class="flex items-center p-3 border border-earth-200 rounded-lg cursor-pointer hover:bg-primary-50 transition-colors">
+                                                <input type="radio" name="payment-method" value="credit_card" required class="text-primary-500 focus:ring-primary-500">
+                                                <span class="ml-2 text-sm font-medium text-gray-900">信用卡付款</span>
+                                            </label>
+                                            <label id="payment-bank-transfer-label" class="flex items-center p-3 border border-earth-200 rounded-lg cursor-pointer hover:bg-primary-50 transition-colors">
+                                                <input type="radio" name="payment-method" value="bank_transfer" required class="text-primary-500 focus:ring-primary-500">
+                                                <span class="ml-2 text-sm font-medium text-gray-900">銀行轉帳</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="w-full mt-6 inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                                        確認結帳 <i class="fas fa-credit-card ml-2"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty Cart State -->
+                <div id="cart-empty" class="hidden text-center py-24 bg-white rounded-2xl border border-earth-200 shadow-sm">
+                    <i class="fas fa-shopping-basket text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500 text-lg mb-6">您的購物車目前是空的</p>
+                    <button onclick="navigateTo('products')" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-500 hover:bg-primary-600 transition-colors">
+                        前往選購
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bank Transfer Info Modal -->
+    <div id="bank-modal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-university text-xl"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-5">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">銀行轉帳資訊</h3>
+                        <div class="mt-4 bg-earth-50 p-4 rounded-lg text-left space-y-2 text-sm text-gray-600">
+                            <p><strong class="text-gray-900">銀行名稱：</strong><span id="modal-bank-name"></span></p>
+                            <p><strong class="text-gray-900">戶名：</strong><span id="modal-bank-account-name"></span></p>
+                            <p><strong class="text-gray-900">帳號：</strong><span id="modal-bank-account-number"></span></p>
+                            <p class="text-xs text-red-500 mt-2">* 轉帳完成後，請保留收據並與我們聯繫確認。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6">
+                    <button type="button" onclick="closeBankModal()" class="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-500 text-base font-medium text-white hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:text-sm">
+                        我已了解，完成結帳
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary-700 text-white py-12 border-t border-primary-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center text-primary-700 mr-2">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <span class="text-lg font-bold">綠意生機</span>
+                    </div>
+                    <p class="text-primary-100 text-sm">
+                        精選有機蔬菜、當季水果、無添加五穀雜糧、頂級冷壓初榨橄欖油及各式健康天然食品。產地直送，新鮮看得見。
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-md font-bold mb-4">快速連結</h4>
+                    <ul class="space-y-2 text-sm text-primary-100">
+                        <li><a href="#home" onclick="navigateTo('home')" class="hover:text-white transition-colors">首頁</a></li>
+                        <li><a href="#products" onclick="navigateTo('products')" class="hover:text-white transition-colors">精選商品</a></li>
+                        <li><a href="#about" onclick="navigateTo('about')" class="hover:text-white transition-colors">關於我們</a></li>
+                        <li><a href="#contact" onclick="navigateTo('contact')" class="hover:text-white transition-colors">聯絡我們</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-md font-bold mb-4">營業理念</h4>
+                    <p class="text-primary-100 text-sm">
+                        我們深信，大自然是最好的醫生。致力於將最純淨、無毒、有機的在地農產品與進口食材帶入每個家庭。
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-primary-600 pt-8 flex flex-col sm:flex-row items-center justify-between text-sm text-primary-200">
+                <p>© 2026 綠意生機 GreenLife Organic Supermarket. All rights reserved.</p>
+                <p class="mt-4 sm:mt-0">Powered by <a href="https://chandone.pages.dev" target="_blank" class="underline hover:text-white transition-colors">ChanDone</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // API Configuration
+        const BASE_URL = 'https://grocery-496707.de.r.appspot.com';
+        const API_KEY = '2fc1cf4b-a31f-4ebb-803b-f6f082d13240';
+
+        // Global State
+        let shopInfo = null;
+        let categories = [];
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem('greenlife_cart')) || [];
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // API Request Helper
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${BASE_URL}${endpoint}`;
+            const headers = {
+                'X-API-Key': API_KEY,
+                ...options.headers
             };
-
-            for (const [key, val] of Object.entries(params)) {
-              const input = document.createElement('input');
-              input.type = 'hidden';
-              input.name = key;
-              input.value = val;
-              form.appendChild(input);
+            
+            if (options.body && !(options.body instanceof FormData)) {
+                headers['Content-Type'] = 'application/json';
+                options.body = JSON.stringify(options.body);
             }
 
-            document.body.appendChild(form);
-            // Clear Cart before redirecting
-            state.cart = [];
-            localStorage.removeItem('cart');
-            updateCartCount();
-            
-            form.submit();
-          } else {
-            showToast('金流初始化失敗，請稍後再試。', 'alert-triangle');
-          }
-        } catch (error) {
-          showToast('金流串接異常，請重新整理網頁再次嘗試。', 'alert-triangle');
-        } finally {
-          checkoutBtn.disabled = false;
-          checkoutBtn.innerHTML = `<span>確認送出訂單</span> <i data-lucide="credit-card" class="w-5 h-5"></i>`;
-          lucide.createIcons();
+            try {
+                const response = await fetch(url, { ...options, headers });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error(`API Error (${endpoint}):`, error);
+                throw error;
+            }
         }
-      }
-    }
 
-    // Bank Modal Controls
-    function openBankModal() {
-      const modal = document.getElementById('bank-modal');
-      const inner = modal.querySelector('div');
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        modal.classList.add('opacity-100');
-        inner.classList.remove('scale-95', 'opacity-0');
-      }, 10);
-    }
+        // Toast Notification Helper
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-message');
 
-    function closeBankModal() {
-      const modal = document.getElementById('bank-modal');
-      const inner = modal.querySelector('div');
-      modal.classList.remove('opacity-100');
-      inner.classList.add('scale-95', 'opacity-0');
-      setTimeout(() => {
-        modal.classList.add('hidden');
-      }, 300);
-    }
+            msg.textContent = message;
+            if (isError) {
+                toast.classList.remove('bg-primary-600');
+                toast.classList.add('bg-red-600');
+                icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+            } else {
+                toast.classList.remove('bg-red-600');
+                toast.classList.add('bg-primary-600');
+                icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+            }
 
-    function copyBankAccount() {
-      const num = document.getElementById('bank-account-num').textContent;
-      navigator.clipboard.writeText(num.replace(/-/g, '')).then(() => {
-        showToast('帳號已複製到剪貼簿！', 'check');
-      });
-    }
-  </script>
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Navigation Control
+        function navigateTo(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(`section-${sectionId}`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Update Active Link in Header
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.classList.add('active-link');
+                } else {
+                    link.classList.remove('active-link');
+                }
+            });
+
+            // Close mobile menu
+            document.getElementById('mobile-menu').classList.add('hidden');
+
+            // Trigger specific page loading logic
+            if (sectionId === 'home') {
+                loadHomeProducts();
+            } else if (sectionId === 'products') {
+                loadProductsPage();
+            } else if (sectionId === 'about') {
+                loadAboutPage();
+            } else if (sectionId === 'contact') {
+                loadContactPage();
+            } else if (sectionId === 'cart') {
+                renderCart();
+            }
+        }
+
+        // Initialize Shop Info & Payment Settings
+        async function initShopInfo() {
+            try {
+                shopInfo = await apiRequest('/api/shop-info');
+                
+                // Handle Payment Switch
+                const disablePayment = shopInfo.payment_settings?.disable_payment;
+                const cartBtn = document.getElementById('cart-btn');
+                
+                if (disablePayment === false) {
+                    cartBtn.classList.remove('hidden');
+                    updateCartCount();
+                    setupPaymentOptions();
+                } else {
+                    cartBtn.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error("Failed to load shop info", error);
+                // If shop-info fails, we still allow browsing but block cart actions
+            }
+        }
+
+        // Setup Payment Options in Checkout Form
+        function setupPaymentOptions() {
+            const creditCardLabel = document.getElementById('payment-credit-card-label');
+            const bankTransferLabel = document.getElementById('payment-bank-transfer-label');
+            const settings = shopInfo?.payment_settings;
+
+            if (settings?.is_credit_card_enabled) {
+                creditCardLabel.classList.remove('hidden');
+            } else {
+                creditCardLabel.classList.add('hidden');
+                creditCardLabel.querySelector('input').disabled = true;
+            }
+
+            if (settings?.is_bank_transfer_enabled) {
+                bankTransferLabel.classList.remove('hidden');
+            } else {
+                bankTransferLabel.classList.add('hidden');
+                bankTransferLabel.querySelector('input').disabled = true;
+            }
+        }
+
+        // Load Home Products (Latest 10)
+        async function loadHomeProducts() {
+            const grid = document.getElementById('home-products-grid');
+            grid.innerHTML = Array(5).fill(0).map(() => `
+                <div class="animate-pulse bg-white rounded-xl p-4 border border-earth-200">
+                    <div class="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+            `).join('');
+
+            try {
+                const allProducts = await apiRequest('/api/products');
+                const latestProducts = allProducts.slice(0, 10);
+                
+                if (latestProducts.length === 0) {
+                    grid.innerHTML = `<p class="col-span-full text-center text-gray-500">目前無商品上架</p>`;
+                    return;
+                }
+
+                grid.innerHTML = latestProducts.map(product => renderProductCard(product)).join('');
+                document.getElementById('error-banner').classList.add('hidden');
+            } catch (error) {
+                document.getElementById('error-banner').classList.remove('hidden');
+                grid.innerHTML = '';
+            }
+        }
+
+        // Load Products Page (All Products & Categories)
+        async function loadProductsPage() {
+            await loadCategories();
+            await fetchAndRenderProducts();
+        }
+
+        // Load Categories
+        async function loadCategories() {
+            const list = document.getElementById('categories-list');
+            list.innerHTML = `<div class="animate-pulse space-y-2"><div class="h-8 bg-gray-200 rounded"></div><div class="h-8 bg-gray-200 rounded"></div></div>`;
+
+            try {
+                categories = await apiRequest('/api/categories');
+                
+                let html = `
+                    <button onclick="filterCategory('all')" class="w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentCategory === 'all' ? 'bg-primary-500 text-white' : 'text-gray-600 hover:bg-primary-50'}">
+                        全部商品
+                    </button>
+                `;
+
+                html += categories.map(cat => `
+                    <button onclick="filterCategory('${cat.id}')" class="w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${currentCategory === cat.id ? 'bg-primary-500 text-white' : 'text-gray-600 hover:bg-primary-50'}">
+                        ${cat.name}
+                    </button>
+                `).join('');
+
+                list.innerHTML = html;
+            } catch (error) {
+                list.innerHTML = `<p class="text-red-500 text-sm">載入分類失敗</p>`;
+            }
+        }
+
+        // Filter Category
+        function filterCategory(categoryId) {
+            currentCategory = categoryId;
+            loadCategories(); // Refresh active state
+            fetchAndRenderProducts();
+        }
+
+        // Fetch and Render Products with Search & Filter
+        async function fetchAndRenderProducts() {
+            const grid = document.getElementById('products-grid');
+            const emptyState = document.getElementById('products-empty');
+            
+            grid.innerHTML = Array(6).fill(0).map(() => `
+                <div class="animate-pulse bg-white rounded-xl p-4 border border-earth-200">
+                    <div class="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                    <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+            `).join('');
+            emptyState.classList.add('hidden');
+
+            try {
+                let endpoint = '/api/products';
+                if (searchQuery) {
+                    endpoint += `?q=${encodeURIComponent(searchQuery)}`;
+                }
+
+                let fetchedProducts = await apiRequest(endpoint);
+
+                // Frontend Category Filtering
+                if (currentCategory !== 'all') {
+                    fetchedProducts = fetchedProducts.filter(p => p.category_id === currentCategory);
+                }
+
+                if (fetchedProducts.length === 0) {
+                    grid.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                grid.innerHTML = fetchedProducts.map(product => renderProductCard(product)).join('');
+            } catch (error) {
+                grid.innerHTML = '';
+                showToast('載入商品失敗，請稍後再試', true);
+            }
+        }
+
+        // Render Single Product Card HTML
+        function renderProductCard(product) {
+            const imageUrl = product.images?.[0] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80';
+            const showBuyButtons = shopInfo && !shopInfo.payment_settings?.disable_payment;
+
+            return `
+                <div class="bg-white rounded-xl border border-earth-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+                    <div class="relative overflow-hidden cursor-pointer" onclick="viewProductDetail('${product.id}')">
+                        <img class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" src="${imageUrl}" alt="${product.name}">
+                        <span class="absolute top-2 left-2 bg-primary-500 text-white text-xs px-2 py-1 rounded-full font-medium">${product.category_name || '有機'}</span>
+                    </div>
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div class="cursor-pointer" onclick="viewProductDetail('${product.id}')">
+                            <span class="text-xs text-gray-400 block mb-1">${product.brand || '綠意嚴選'}</span>
+                            <h3 class="text-base font-bold text-gray-800 group-hover:text-primary-500 transition-colors line-clamp-2">${product.name}</h3>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex items-baseline justify-between mb-3">
+                                <span class="text-lg font-extrabold text-primary-600">NT$ ${parseFloat(product.price).toLocaleString()}</span>
+                            </div>
+                            ${showBuyButtons ? `
+                                <button onclick="addToCart('${product.id}', '${product.name}', ${product.price}, '${imageUrl}')" class="w-full inline-flex justify-center items-center px-3 py-2 border border-primary-500 text-sm font-medium rounded-lg text-primary-500 hover:bg-primary-500 hover:text-white transition-colors focus:outline-none">
+                                    <i class="fas fa-shopping-basket mr-2"></i> 加入購物車
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // View Product Detail
+        async function viewProductDetail(productId) {
+            navigateTo('product-detail');
+            const container = document.getElementById('product-detail-content');
+            container.innerHTML = `
+                <div class="animate-pulse p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-200 h-96 rounded-xl"></div>
+                    <div class="space-y-4">
+                        <div class="h-8 bg-gray-200 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div class="h-24 bg-gray-200 rounded"></div>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const product = await apiRequest(`/api/products/${productId}`);
+                
+                // Update Breadcrumbs
+                document.getElementById('detail-breadcrumb-category').textContent = product.category_name || '未分類';
+                document.getElementById('detail-breadcrumb-category').onclick = () => {
+                    filterCategory(product.category_id || 'all');
+                    navigateTo('products');
+                };
+                document.getElementById('detail-breadcrumb-name').textContent = product.name;
+
+                const imageUrl = product.images?.[0] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80';
+                const showBuyButtons = shopInfo && !shopInfo.payment_settings?.disable_payment;
+
+                // Specs rendering
+                let specsHtml = '';
+                if (product.specs && Object.keys(product.specs).length > 0) {
+                    specsHtml = `
+                        <div class="mt-6 border-t border-earth-200 pt-6">
+                            <h3 class="text-sm font-medium text-gray-900">商品規格</h3>
+                            <dl class="mt-2 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                                ${Object.entries(product.specs).map(([key, val]) => `
+                                    <div class="border-b border-earth-100 pb-2">
+                                        <dt class="text-xs text-gray-500">${key}</dt>
+                                        <dd class="text-sm font-medium text-gray-900">${val}</dd>
+                                    </div>
+                                `).join('')}
+                            </dl>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-8">
+                        <!-- Left: Image -->
+                        <div class="space-y-4">
+                            <div class="aspect-w-1 aspect-h-1 rounded-xl overflow-hidden bg-gray-100 border border-earth-200">
+                                <img class="w-full h-96 object-cover" src="${imageUrl}" alt="${product.name}">
+                            </div>
+                        </div>
+
+                        <!-- Right: Info -->
+                        <div class="flex flex-col justify-between">
+                            <div>
+                                <span class="text-sm text-primary-500 font-medium tracking-wider uppercase">${product.brand || '綠意嚴選'}</span>
+                                <h1 class="text-3xl font-extrabold text-gray-900 mt-1">${product.name}</h1>
+                                <p class="text-sm text-gray-500 mt-1">分類：${product.category_name || '有機'}</p>
+                                
+                                <div class="mt-4">
+                                    <span class="text-3xl font-extrabold text-primary-600">NT$ ${parseFloat(product.price).toLocaleString()}</span>
+                                </div>
+
+                                <div class="mt-6">
+                                    <h3 class="text-sm font-medium text-gray-900">商品描述</h3>
+                                    <p class="mt-2 text-sm text-gray-600 leading-relaxed whitespace-pre-line">${product.description || '暫無描述'}</p>
+                                </div>
+
+                                ${specsHtml}
+                            </div>
+
+                            ${showBuyButtons ? `
+                                <div class="mt-8 pt-6 border-t border-earth-200">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex items-center border border-earth-200 rounded-lg">
+                                            <button onclick="adjustDetailQty(-1)" class="px-3 py-2 text-gray-600 hover:text-primary-500"><i class="fas fa-minus"></i></button>
+                                            <span id="detail-qty" class="px-4 py-2 font-medium text-gray-900">1</span>
+                                            <button onclick="adjustDetailQty(1)" class="px-3 py-2 text-gray-600 hover:text-primary-500"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                        <button onclick="addDetailToCart('${product.id}', '${product.name}', ${product.price}, '${imageUrl}')" class="flex-1 inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-500 hover:bg-primary-600 transition-colors">
+                                            <i class="fas fa-shopping-basket mr-2"></i> 加入購物車
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="text-center py-16">
+                        <i class="fas fa-exclamation-circle text-5xl text-red-500 mb-4"></i>
+                        <p class="text-gray-500 text-lg">無法取得商品詳細資訊</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Detail Quantity Adjust
+        function adjustDetailQty(amount) {
+            const qtySpan = document.getElementById('detail-qty');
+            let currentQty = parseInt(qtySpan.textContent);
+            currentQty += amount;
+            if (currentQty < 1) currentQty = 1;
+            qtySpan.textContent = currentQty;
+        }
+
+        function addDetailToCart(id, name, price, image) {
+            const qty = parseInt(document.getElementById('detail-qty').textContent);
+            addToCart(id, name, price, image, qty);
+        }
+
+        // Cart Logic
+        function addToCart(id, name, price, image, quantity = 1) {
+            // Safety check for shop-info error
+            if (!shopInfo) {
+                alert('購物流程出現錯誤，請重新整理網頁再次嘗試。');
+                return;
+            }
+
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({ id, name, price, image, quantity });
+            }
+
+            saveCart();
+            updateCartCount();
+            showToast(`已將 ${quantity} 件商品加入購物車`);
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+
+        function saveCart() {
+            localStorage.setItem('greenlife_cart', JSON.stringify(cart));
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cart-items-list');
+            const container = document.getElementById('cart-container');
+            const emptyState = document.getElementById('cart-empty');
+
+            if (cart.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            list.innerHTML = cart.map(item => `
+                <div class="flex items-center bg-white p-4 rounded-xl border border-earth-200 shadow-sm">
+                    <img class="w-20 h-20 object-cover rounded-lg border border-earth-100" src="${item.image}" alt="${item.name}">
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-base font-bold text-gray-800 line-clamp-1">${item.name}</h3>
+                        <p class="text-sm text-primary-600 font-semibold mt-1">NT$ ${item.price.toLocaleString()}</p>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="flex items-center border border-earth-200 rounded-md">
+                                <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-1 text-gray-500 hover:text-primary-500"><i class="fas fa-minus text-xs"></i></button>
+                                <span class="px-3 text-sm font-medium text-gray-900">${item.quantity}</span>
+                                <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-1 text-gray-500 hover:text-primary-500"><i class="fas fa-plus text-xs"></i></button>
+                            </div>
+                            <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-600 text-sm font-medium">
+                                <i class="fas fa-trash-alt mr-1"></i> 刪除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            calculateCartTotal();
+        }
+
+        function updateCartQty(id, amount) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity += amount;
+                if (item.quantity <= 0) {
+                    removeFromCart(id);
+                    return;
+                }
+                saveCart();
+                updateCartCount();
+                renderCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            saveCart();
+            updateCartCount();
+            renderCart();
+        }
+
+        function calculateCartTotal() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cart-subtotal').textContent = `NT$ ${total.toLocaleString()}`;
+            document.getElementById('cart-total').textContent = `NT$ ${total.toLocaleString()}`;
+        }
+
+        // Load About Page
+        async function loadAboutPage() {
+            try {
+                const info = await apiRequest('/api/shop-info');
+                if (info.shop_photo_url) {
+                    document.getElementById('about-shop-photo').src = info.shop_photo_url;
+                }
+            } catch (error) {
+                console.error("Failed to load shop photo", error);
+            }
+        }
+
+        // Load Contact Page
+        async function loadContactPage() {
+            const list = document.getElementById('contact-info-list');
+            list.innerHTML = `<div class="animate-pulse space-y-4"><div class="h-12 bg-gray-200 rounded"></div><div class="h-12 bg-gray-200 rounded"></div></div>`;
+
+            try {
+                const contactData = await apiRequest('/api/contact-info');
+                
+                if (contactData.length === 0) {
+                    list.innerHTML = `<p class="text-gray-500">暫無聯絡資訊</p>`;
+                    return;
+                }
+
+                list.innerHTML = contactData.map(info => {
+                    let icon = 'fa-info-circle';
+                    let href = '#';
+                    let target = '';
+                    let displayValue = info.value;
+
+                    if (info.type === 'email') {
+                        icon = 'fa-envelope';
+                        href = `mailto:${info.value}`;
+                    } else if (info.type === 'phone') {
+                        icon = 'fa-phone';
+                        href = `tel:${info.value}`;
+                    } else if (info.type === 'address') {
+                        icon = 'fa-map-marker-alt';
+                        href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(info.value)}`;
+                        target = '_blank';
+                    } else if (info.type === 'line') {
+                        icon = 'fa-comment';
+                        href = info.value.startsWith('http') ? info.value : `https://line.me/R/ti/p/~${info.value}`;
+                        target = '_blank';
+                        displayValue = '加入 Line 好友';
+                    } else if (info.type === 'line_qr') {
+                        return `
+                            <div class="flex flex-col items-center p-4 border border-earth-200 rounded-xl bg-earth-50">
+                                <span class="text-sm font-bold text-primary-700 mb-2">Line QR Code</span>
+                                <img class="w-32 h-32 object-contain" src="${info.value}" alt="Line QR Code">
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <a href="${href}" target="${target}" class="flex items-center p-4 border border-earth-200 rounded-xl hover:bg-primary-50 hover:border-primary-200 transition-all group">
+                            <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 group-hover:bg-primary-500 group-hover:text-white transition-colors mr-4">
+                                <i class="fas ${icon} text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase">${info.type}</span>
+                                <span class="text-sm font-medium text-gray-800 group-hover:text-primary-600 transition-colors">${displayValue}</span>
+                            </div>
+                        </a>
+                    `;
+                }).join('');
+            } catch (error) {
+                list.innerHTML = `<p class="text-red-500">無法載入聯絡資訊</p>`;
+            }
+        }
+
+        // Submit Contact Form
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('form-name').value;
+            const email = document.getElementById('form-email').value;
+            const phone = document.getElementById('form-phone').value;
+            const description = document.getElementById('form-desc').value;
+
+            try {
+                const response = await apiRequest('/api/submit_form', {
+                    method: 'POST',
+                    body: { name, email, phone, description }
+                });
+
+                if (response.status === 'success') {
+                    showToast('訊息已成功送出！');
+                    document.getElementById('contact-form').reset();
+                } else {
+                    showToast('送出失敗，請稍後再試', true);
+                }
+            } catch (error) {
+                showToast('系統異常，請重新整理網頁再次嘗試', true);
+            }
+        });
+
+        // Checkout Form Submit (Payment Integration)
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!shopInfo) {
+                alert('購物流程出現錯誤，請重新整理網頁再次嘗試。');
+                return;
+            }
+
+            const name = document.getElementById('checkout-name').value;
+            const phone = document.getElementById('checkout-phone').value;
+            const address = document.getElementById('checkout-address').value;
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const itemDesc = cart.map(item => `${item.name} x ${item.quantity}`).join(', ');
+
+            if (paymentMethod === 'credit_card') {
+                try {
+                    // Call Create Payment API
+                    const paymentData = await apiRequest('/api/create-payment', {
+                        method: 'POST',
+                        body: {
+                            amount: totalAmount,
+                            item_desc: itemDesc,
+                            customer_data: { name, phone, address }
+                        }
+                    });
+
+                    if (paymentData.status === 'success') {
+                        // Create dynamic form to submit to Newebpay
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = paymentData.newebpay_url;
+
+                        const params = {
+                            MerchantID: paymentData.MerchantID,
+                            TradeInfo: paymentData.TradeInfo,
+                            TradeSha: paymentData.TradeSha,
+                            Version: paymentData.Version
+                        };
+
+                        for (const [key, value] of Object.entries(params)) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = value;
+                            form.appendChild(input);
+                        }
+
+                        document.body.appendChild(form);
+                        
+                        // Clear cart before redirecting
+                        cart = [];
+                        saveCart();
+                        updateCartCount();
+
+                        form.submit();
+                    } else {
+                        showToast('建立付款失敗，請稍後再試', true);
+                    }
+                } catch (error) {
+                    showToast('購物流程出現錯誤，請重新整理網頁再次嘗試', true);
+                }
+            } else if (paymentMethod === 'bank_transfer') {
+                // Show Bank Transfer Modal
+                const settings = shopInfo.payment_settings;
+                document.getElementById('modal-bank-name').textContent = settings.bank_name || '未提供';
+                document.getElementById('modal-bank-account-name').textContent = settings.bank_account_name || '未提供';
+                document.getElementById('modal-bank-account-number').textContent = settings.bank_account_number || '未提供';
+                
+                document.getElementById('bank-modal').classList.remove('hidden');
+            }
+        });
+
+        function closeBankModal() {
+            document.getElementById('bank-modal').classList.add('hidden');
+            // Clear cart and redirect to home
+            cart = [];
+            saveCart();
+            updateCartCount();
+            navigateTo('home');
+            showToast('訂單已建立，請儘速完成匯款！');
+        }
+
+        // Search Input Event
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchQuery = e.target.value;
+            searchTimeout = setTimeout(() => {
+                fetchAndRenderProducts();
+            }, 500); // Debounce search
+        });
+
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Handle Hash Routing on Load
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '') || 'home';
+            if (hash.startsWith('product?id=')) {
+                const id = hash.split('=')[1];
+                viewProductDetail(id);
+            } else {
+                navigateTo(hash);
+            }
+        });
+
+        // Initial Load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initShopInfo();
+            
+            // Route initial page
+            const hash = window.location.hash.replace('#', '') || 'home';
+            if (hash.startsWith('product?id=')) {
+                const id = hash.split('=')[1];
+                viewProductDetail(id);
+            } else {
+                navigateTo(hash);
+            }
+        });
+    </script>
 </body>
 </html>
 ```
