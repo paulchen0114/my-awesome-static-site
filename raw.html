@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>質本科研 | Bio-Balance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --bg: #f8fafc; --primary: #1e293b; --accent: #64748b; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--primary); }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .nav-link { transition: 0.3s; }
+        .nav-link:hover { color: #000; }
+    </style>
+</head>
+<body>
+    <canvas id="bgCanvas"></canvas>
+    
+    <nav class="flex justify-between items-center p-6 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <div class="text-2xl font-bold tracking-tighter">Bio-Balance | 質本科研</div>
+        <div class="space-x-6 hidden md:flex">
+            <a href="#" onclick="showPage('home')" class="nav-link">首頁</a>
+            <a href="#" onclick="showPage('products')" class="nav-link">精選商品</a>
+            <a href="#" onclick="showPage('about')" class="nav-link">關於我們</a>
+            <a href="#" onclick="showPage('contact')" class="nav-link">聯絡我們</a>
+        </div>
+    </nav>
+
+    <main id="app" class="container mx-auto px-4 py-12 min-h-[80vh]">
+        <div id="content"></div>
+    </main>
+
+    <footer class="text-center py-8 text-sm text-gray-500">
+        © 2026 質本科研 | Powered by <a href="https://chandone.pages.dev" class="underline">ChanDone</a>
+    </footer>
+
+    <script>
+        const API_KEY = '2fc1cf4b-a31f-4ebb-803b-f6f082d13240';
+        const BASE_URL = 'https://grocery-496707.de.r.appspot.com';
+
+        // Canvas Background
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const particles = Array.from({length: 30}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2}));
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#e2e8f0';
+            particles.forEach(p => { p.y -= 0.2; if(p.y < 0) p.y = canvas.height; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        async function fetchAPI(endpoint) {
+            const res = await fetch(`${BASE_URL}${endpoint}`, { headers: {'X-API-Key': API_KEY} });
+            if (!res.ok) throw new Error('API Error');
+            return res.json();
+        }
+
+        async function showPage(page) {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="text-center">載入中...</div>';
+            
+            try {
+                if (page === 'home') {
+                    const products = await fetchAPI('/api/products');
+                    content.innerHTML = `
+                        <section class="text-center py-20">
+                            <h1 class="text-5xl font-bold mb-6">質本科研 Bio-Balance</h1>
+                            <p class="text-xl text-gray-600 max-w-2xl mx-auto">數據說話、成分透明。去掉所有不必要的添加物，只給身體真正需要的科學養分。</p>
+                        </section>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            ${products.slice(0, 3).map(p => `<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><h3>${p.name}</h3><p class="text-blue-600 font-bold">$${p.price}</p></div>`).join('')}
+                        </div>
+                    `;
+                } else if (page === 'about') {
+                    const info = await fetchAPI('/api/shop-info');
+                    content.innerHTML = `
+                        <div class="flex flex-col md:flex-row gap-12">
+                            <img src="${info.shop_photo_url}" class="w-full md:w-1/2 rounded-lg shadow-lg">
+                            <div class="prose">
+                                <h2 class="text-3xl font-bold mb-4">關於我們</h2>
+                                <p class="whitespace-pre-line leading-relaxed">現代人的生活太滿，身體的負擔太重。充斥著加工食品、藍光與壓力，我們的身體早已失去了平衡（Balance）。『衡研社』由一群對成分有著強迫症的研發團隊所發起。我們秉持「減法美學，加法科學」的理念，走遍全球尋找擁有專利文獻支持的原料。每一粒膠囊、每一包飲品，都是經過精準計算的健康方程式。不玩文字遊戲，只用純粹與實證，重新校正你的身體平衡。</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (page === 'contact') {
+                    const contacts = await fetchAPI('/api/contact-info');
+                    content.innerHTML = `
+                        <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-sm">
+                            <h2 class="text-2xl font-bold mb-6">聯絡我們</h2>
+                            ${contacts.map(c => `<p class="mb-2">${c.type}: ${c.value}</p>`).join('')}
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                content.innerHTML = '<div class="text-center text-red-500">網頁顯示異常，請重新整理頁面。</div>';
+            }
+        }
+
+        showPage('home');
+    </script>
+</body>
+</html>
