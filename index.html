@@ -1,105 +1,1372 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>質本科研 | Bio-Balance</title>
+    <title>質本科研 Bio-Balance | 數據說話、成分透明的理性派保健品牌</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        dark: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Noto Sans TC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root { --bg: #f8fafc; --primary: #1e293b; --accent: #64748b; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--primary); }
-        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
-        .nav-link { transition: 0.3s; }
-        .nav-link:hover { color: #000; }
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        /* Page transitions */
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
-<body>
-    <canvas id="bgCanvas"></canvas>
-    
-    <nav class="flex justify-between items-center p-6 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div class="text-2xl font-bold tracking-tighter">Bio-Balance | 質本科研</div>
-        <div class="space-x-6 hidden md:flex">
-            <a href="#" onclick="showPage('home')" class="nav-link">首頁</a>
-            <a href="#" onclick="showPage('products')" class="nav-link">精選商品</a>
-            <a href="#" onclick="showPage('about')" class="nav-link">關於我們</a>
-            <a href="#" onclick="showPage('contact')" class="nav-link">聯絡我們</a>
+<body class="bg-dark-50 text-dark-900 min-h-screen flex flex-col">
+
+    <!-- Global Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-dark-900 text-white px-6 py-3 rounded-lg shadow-xl flex items-center space-x-3">
+        <span id="toast-icon"></span>
+        <span id="toast-message" class="text-sm font-medium"></span>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-dark-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <!-- Logo -->
+                <a href="#home" onclick="navigateTo('home')" class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-lg tracking-wider">B</div>
+                    <div class="flex flex-col">
+                        <span class="text-lg font-bold tracking-tight text-dark-900 leading-none">質本科研</span>
+                        <span class="text-xs text-brand-600 font-semibold tracking-widest uppercase">Bio-Balance</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" onclick="navigateTo('home')" class="nav-link text-dark-900 hover:text-brand-600 font-medium text-sm transition-colors">首頁</a>
+                    <a href="#products" onclick="navigateTo('products')" class="nav-link text-dark-900 hover:text-brand-600 font-medium text-sm transition-colors">精選商品</a>
+                    <a href="#about" onclick="navigateTo('about')" class="nav-link text-dark-900 hover:text-brand-600 font-medium text-sm transition-colors">關於我們</a>
+                    <a href="#contact" onclick="navigateTo('contact')" class="nav-link text-dark-900 hover:text-brand-600 font-medium text-sm transition-colors">聯絡我們</a>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Cart Button -->
+                    <button id="cart-btn" onclick="navigateTo('cart')" class="relative p-2 text-dark-900 hover:text-brand-600 transition-colors hidden">
+                        <i class="fa-solid fa-cart-shopping text-xl"></i>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-brand-600 text-white text-xxs w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px]">0</span>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" class="md:hidden p-2 text-dark-900 hover:text-brand-600 transition-colors">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-dark-100 px-4 py-4 space-y-3">
+            <a href="#home" onclick="navigateTo('home')" class="block text-dark-900 hover:text-brand-600 font-medium text-base py-2">首頁</a>
+            <a href="#products" onclick="navigateTo('products')" class="block text-dark-900 hover:text-brand-600 font-medium text-base py-2">精選商品</a>
+            <a href="#about" onclick="navigateTo('about')" class="block text-dark-900 hover:text-brand-600 font-medium text-base py-2">關於我們</a>
+            <a href="#contact" onclick="navigateTo('contact')" class="block text-dark-900 hover:text-brand-600 font-medium text-base py-2">聯絡我們</a>
         </div>
     </nav>
 
-    <main id="app" class="container mx-auto px-4 py-12 min-h-[80vh]">
-        <div id="content"></div>
-    </main>
+    <!-- Main Content -->
+    <main class="flex-grow">
 
-    <footer class="text-center py-8 text-sm text-gray-500">
-        © 2026 質本科研 | Powered by <a href="https://chandone.pages.dev" class="underline">ChanDone</a>
-    </footer>
-
-    <script>
-        const API_KEY = '2fc1cf4b-a31f-4ebb-803b-f6f082d13240';
-        const BASE_URL = 'https://grocery-496707.de.r.appspot.com';
-
-        // Canvas Background
-        const canvas = document.getElementById('bgCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const particles = Array.from({length: 30}, () => ({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2}));
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#e2e8f0';
-            particles.forEach(p => { p.y -= 0.2; if(p.y < 0) p.y = canvas.height; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); });
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        async function fetchAPI(endpoint) {
-            const res = await fetch(`${BASE_URL}${endpoint}`, { headers: {'X-API-Key': API_KEY} });
-            if (!res.ok) throw new Error('API Error');
-            return res.json();
-        }
-
-        async function showPage(page) {
-            const content = document.getElementById('content');
-            content.innerHTML = '<div class="text-center">載入中...</div>';
-            
-            try {
-                if (page === 'home') {
-                    const products = await fetchAPI('/api/products');
-                    content.innerHTML = `
-                        <section class="text-center py-20">
-                            <h1 class="text-5xl font-bold mb-6">質本科研 Bio-Balance</h1>
-                            <p class="text-xl text-gray-600 max-w-2xl mx-auto">數據說話、成分透明。去掉所有不必要的添加物，只給身體真正需要的科學養分。</p>
-                        </section>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            ${products.slice(0, 3).map(p => `<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><h3>${p.name}</h3><p class="text-blue-600 font-bold">$${p.price}</p></div>`).join('')}
+        <!-- HOME PAGE -->
+        <section id="home-page" class="page-section active">
+            <!-- Hero Section with Canvas Background -->
+            <div class="relative bg-gradient-to-b from-brand-50 to-white py-24 md:py-32 overflow-hidden border-b border-dark-100">
+                <div class="canvas-container">
+                    <canvas id="hero-canvas"></canvas>
+                </div>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="max-w-3xl">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-brand-100 text-brand-700 mb-6">
+                            <i class="fa-solid fa-circle-nodes mr-1.5 animate-pulse"></i> 數據說話 • 成分透明
+                        </span>
+                        <h1 class="text-4xl md:text-6xl font-extrabold text-dark-900 tracking-tight leading-tight mb-6">
+                            減法美學，加法科學<br>
+                            <span class="text-brand-600">重新校正你的身體平衡</span>
+                        </h1>
+                        <p class="text-lg text-slate-600 leading-relaxed mb-8 max-w-2xl">
+                            主打「數據說話、成分透明」的理性派保健品牌。針對低頭族、熬夜加班族，提供高純度、高吸收率的精準營養解決方案，去掉所有不必要的添加物，只給身體真正需要的科學養分。
+                        </p>
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                            <a href="#products" onclick="navigateTo('products')" class="inline-flex justify-center items-center px-8 py-4 border border-transparent text-base font-medium rounded-lg text-white bg-brand-600 hover:bg-brand-700 transition-colors shadow-lg shadow-brand-600/20">
+                                探索精選商品 <i class="fa-solid fa-arrow-right ml-2"></i>
+                            </a>
+                            <a href="#about" onclick="navigateTo('about')" class="inline-flex justify-center items-center px-8 py-4 border border-slate-200 text-base font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition-colors">
+                                品牌故事
+                            </a>
                         </div>
-                    `;
-                } else if (page === 'about') {
-                    const info = await fetchAPI('/api/shop-info');
-                    content.innerHTML = `
-                        <div class="flex flex-col md:flex-row gap-12">
-                            <img src="${info.shop_photo_url}" class="w-full md:w-1/2 rounded-lg shadow-lg">
-                            <div class="prose">
-                                <h2 class="text-3xl font-bold mb-4">關於我們</h2>
-                                <p class="whitespace-pre-line leading-relaxed">現代人的生活太滿，身體的負擔太重。充斥著加工食品、藍光與壓力，我們的身體早已失去了平衡（Balance）。『衡研社』由一群對成分有著強迫症的研發團隊所發起。我們秉持「減法美學，加法科學」的理念，走遍全球尋找擁有專利文獻支持的原料。每一粒膠囊、每一包飲品，都是經過精準計算的健康方程式。不玩文字遊戲，只用純粹與實證，重新校正你的身體平衡。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Products Section -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="flex justify-between items-end mb-10">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-dark-900">最新精準配方</h2>
+                        <p class="text-slate-500 mt-2">經科學實證與專利文獻支持的熱銷商品</p>
+                    </div>
+                    <a href="#products" onclick="navigateTo('products')" class="text-brand-600 hover:text-brand-700 font-semibold text-sm flex items-center transition-colors">
+                        查看全部 <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Home Error Message -->
+                <div id="home-error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-3 mb-8">
+                    <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+                    <span>網頁顯示異常，請重新整理頁面。</span>
+                </div>
+
+                <!-- Products Grid Loader -->
+                <div id="home-loader" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Skeleton Cards -->
+                    <div class="animate-pulse bg-white rounded-xl p-4 border border-dark-100">
+                        <div class="bg-slate-200 h-48 rounded-lg mb-4"></div>
+                        <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                    </div>
+                    <div class="animate-pulse bg-white rounded-xl p-4 border border-dark-100">
+                        <div class="bg-slate-200 h-48 rounded-lg mb-4"></div>
+                        <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                    </div>
+                    <div class="animate-pulse bg-white rounded-xl p-4 border border-dark-100">
+                        <div class="bg-slate-200 h-48 rounded-lg mb-4"></div>
+                        <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                    </div>
+                    <div class="animate-pulse bg-white rounded-xl p-4 border border-dark-100">
+                        <div class="bg-slate-200 h-48 rounded-lg mb-4"></div>
+                        <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="home-products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 hidden">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCTS PAGE -->
+        <section id="products-page" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <h1 class="text-3xl md:text-4xl font-bold text-dark-900">精選科學配方</h1>
+                    <p class="text-slate-500 mt-3">所有成分公開透明，無多餘添加，只給身體最精準的日常補給。</p>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Sidebar (Categories & Search) -->
+                    <div class="w-full lg:w-1/4 space-y-6">
+                        <!-- Search Box -->
+                        <div class="bg-white p-5 rounded-xl border border-dark-100 shadow-sm">
+                            <h3 class="text-sm font-semibold text-dark-900 uppercase tracking-wider mb-3">搜尋商品</h3>
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="輸入關鍵字..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
                             </div>
                         </div>
-                    `;
-                } else if (page === 'contact') {
-                    const contacts = await fetchAPI('/api/contact-info');
-                    content.innerHTML = `
-                        <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow-sm">
-                            <h2 class="text-2xl font-bold mb-6">聯絡我們</h2>
-                            ${contacts.map(c => `<p class="mb-2">${c.type}: ${c.value}</p>`).join('')}
+
+                        <!-- Categories -->
+                        <div class="bg-white p-5 rounded-xl border border-dark-100 shadow-sm">
+                            <h3 class="text-sm font-semibold text-dark-900 uppercase tracking-wider mb-3">商品分類</h3>
+                            <div id="categories-list" class="space-y-1">
+                                <!-- Dynamic Categories -->
+                                <div class="animate-pulse space-y-2">
+                                    <div class="h-8 bg-slate-100 rounded"></div>
+                                    <div class="h-8 bg-slate-100 rounded"></div>
+                                    <div class="h-8 bg-slate-100 rounded"></div>
+                                </div>
+                            </div>
                         </div>
-                    `;
-                }
-            } catch (e) {
-                content.innerHTML = '<div class="text-center text-red-500">網頁顯示異常，請重新整理頁面。</div>';
+                    </div>
+
+                    <!-- Products List -->
+                    <div class="w-full lg:w-3/4">
+                        <!-- Products Loader -->
+                        <div id="products-loader" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Skeletons -->
+                            <div class="animate-pulse bg-white rounded-xl p-4 border border-dark-100">
+                                <div class="bg-slate-200 h-48 rounded-lg mb-4"></div>
+                                <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
+                                <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                            </div>
+                            <div class="animate-pulse bg-white rounded-xl p-4 border border-dark-100">
+                                <div class="bg-slate-200 h-48 rounded-lg mb-4"></div>
+                                <div class="h-4 bg-slate-200 rounded w-2/3 mb-2"></div>
+                                <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Products Grid -->
+                        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                            <!-- Dynamic Content -->
+                        </div>
+
+                        <!-- No Products Found -->
+                        <div id="no-products" class="hidden text-center py-16 bg-white rounded-xl border border-dark-100">
+                            <i class="fa-solid fa-box-open text-5xl text-slate-300 mb-4"></i>
+                            <p class="text-slate-500 font-medium">找不到符合條件的商品</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCT DETAIL PAGE -->
+        <section id="product-detail-page" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <!-- Back Button -->
+                <button onclick="navigateTo('products')" class="inline-flex items-center text-slate-500 hover:text-brand-600 font-medium mb-8 transition-colors">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> 返回商品列表
+                </button>
+
+                <div id="product-detail-container" class="bg-white rounded-2xl border border-dark-100 shadow-sm overflow-hidden">
+                    <!-- Dynamic Detail Content -->
+                    <div class="animate-pulse p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="bg-slate-200 h-96 rounded-xl"></div>
+                        <div class="space-y-4">
+                            <div class="h-8 bg-slate-200 rounded w-3/4"></div>
+                            <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+                            <div class="h-24 bg-slate-200 rounded"></div>
+                            <div class="h-10 bg-slate-200 rounded w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT PAGE -->
+        <section id="about-page" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    <!-- Left: Shop Photo -->
+                    <div class="lg:col-span-5">
+                        <div class="relative rounded-2xl overflow-hidden shadow-xl border border-dark-100">
+                            <img id="about-shop-photo" src="" alt="質本科研" class="w-full h-[450px] object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark-900/40 to-transparent"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Brand Story -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <span class="text-brand-600 font-bold tracking-widest uppercase text-sm">Brand Story</span>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-dark-900 tracking-tight">
+                            關於 質本科研 Bio-Balance
+                        </h1>
+                        <div class="h-1 w-20 bg-brand-600 rounded"></div>
+                        <div class="text-slate-600 leading-relaxed space-y-6 text-base md:text-lg">
+                            <p class="whitespace-pre-line">現代人的生活太滿，身體的負擔太重。充斥著加工食品、藍光與壓力，我們的身體早已失去了平衡（Balance）。『衡研社』由一群對成分有著強迫症的研發團隊所發起。我們秉持「減法美學，加法科學」的理念，走遍全球尋找擁有專利文獻支持的原料。每一粒膠囊、每一包飲品，都是經過精準計算的健康方程式。不玩文字遊戲，只用純粹與實證，重新校正你的身體平衡。</p>
+                        </div>
+                        <div class="pt-6 grid grid-cols-3 gap-4 border-t border-slate-100 text-center">
+                            <div>
+                                <p class="text-2xl md:text-3xl font-bold text-brand-600">100%</p>
+                                <p class="text-xs text-slate-500 mt-1">成分透明公開</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl md:text-3xl font-bold text-brand-600">0%</p>
+                                <p class="text-xs text-slate-500 mt-1">無多餘化學添加</p>
+                            </div>
+                            <div>
+                                <p class="text-2xl md:text-3xl font-bold text-brand-600">臨床</p>
+                                <p class="text-xs text-slate-500 mt-1">專利文獻支持</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT PAGE -->
+        <section id="contact-page" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <h1 class="text-3xl md:text-4xl font-bold text-dark-900">聯絡我們</h1>
+                    <p class="text-slate-500 mt-3">有任何疑問或合作需求？歡迎隨時與我們聯繫，我們將在最短時間內回覆您。</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    <!-- Left: Contact Info -->
+                    <div class="lg:col-span-5 space-y-8">
+                        <div class="bg-white p-8 rounded-2xl border border-dark-100 shadow-sm space-y-6">
+                            <h3 class="text-lg font-bold text-dark-900 mb-4">聯絡資訊</h3>
+                            <div id="contact-info-list" class="space-y-4">
+                                <!-- Dynamic Contact Info -->
+                                <div class="animate-pulse space-y-3">
+                                    <div class="h-10 bg-slate-100 rounded"></div>
+                                    <div class="h-10 bg-slate-100 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Contact Form -->
+                    <div class="lg:col-span-7">
+                        <div class="bg-white p-8 rounded-2xl border border-dark-100 shadow-sm">
+                            <h3 class="text-lg font-bold text-dark-900 mb-6">發送訊息</h3>
+                            <form id="contact-form" class="space-y-5">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">姓名 <span class="text-red-500">*</span></label>
+                                        <input type="text" name="name" required class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-1">Email <span class="text-red-500">*</span></label>
+                                        <input type="email" name="email" required class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">電話 <span class="text-slate-400">(選填)</span></label>
+                                    <input type="tel" name="phone" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-1">描述 <span class="text-slate-400">(最多 500 字，選填)</span></label>
+                                    <textarea name="description" rows="5" maxlength="500" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent resize-none"></textarea>
+                                </div>
+                                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg shadow-lg shadow-brand-600/10 transition-colors flex justify-center items-center">
+                                    <span>送出訊息</span>
+                                    <i class="fa-solid fa-paper-plane ml-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CART & CHECKOUT PAGE -->
+        <section id="cart-page" class="page-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <h1 class="text-3xl font-bold text-dark-900 mb-8">購物車</h1>
+
+                <div id="cart-empty-state" class="hidden text-center py-20 bg-white rounded-2xl border border-dark-100">
+                    <i class="fa-solid fa-cart-flatbed text-6xl text-slate-300 mb-4"></i>
+                    <p class="text-slate-500 font-medium text-lg mb-6">您的購物車是空的</p>
+                    <a href="#products" onclick="navigateTo('products')" class="inline-flex items-center px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors">
+                        去逛逛商品
+                    </a>
+                </div>
+
+                <div id="cart-content" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Cart Items List -->
+                    <div class="lg:col-span-7 space-y-4">
+                        <div class="bg-white p-6 rounded-2xl border border-dark-100 shadow-sm">
+                            <h3 class="text-lg font-bold text-dark-900 mb-4">選購商品</h3>
+                            <div id="cart-items-container" class="divide-y divide-slate-100">
+                                <!-- Dynamic Cart Items -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Panel -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <!-- Order Summary -->
+                        <div class="bg-white p-6 rounded-2xl border border-dark-100 shadow-sm">
+                            <h3 class="text-lg font-bold text-dark-900 mb-4">訂單摘要</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>商品小計</span>
+                                    <span id="cart-subtotal">$0</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>運費</span>
+                                    <span id="cart-shipping-fee">$0</span>
+                                </div>
+                                <div id="free-shipping-tip" class="bg-brand-50 text-brand-700 p-3 rounded-lg text-xs font-medium">
+                                    <!-- Free shipping tip dynamic -->
+                                </div>
+                                <div class="border-t border-slate-100 pt-3 flex justify-between text-base font-bold text-dark-900">
+                                    <span>總計</span>
+                                    <span id="cart-total">$0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Info Form -->
+                        <div class="bg-white p-6 rounded-2xl border border-dark-100 shadow-sm">
+                            <h3 class="text-lg font-bold text-dark-900 mb-4">收件人資訊</h3>
+                            <form id="checkout-form" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">姓名 *</label>
+                                    <input type="text" id="cust-name" required class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">手機 *</label>
+                                    <input type="tel" id="cust-phone" required class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Email *</label>
+                                    <input type="email" id="cust-email" required class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">地址 *</label>
+                                    <input type="text" id="cust-address" required class="w-full px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                                </div>
+
+                                <!-- Payment Method -->
+                                <div class="pt-4 border-t border-slate-100">
+                                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-2">付款方式 *</label>
+                                    <div class="space-y-2">
+                                        <label id="pay-credit-card-label" class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                                            <input type="radio" name="payment_method" value="credit_card" checked class="text-brand-600 focus:ring-brand-500 mr-3">
+                                            <div class="text-sm">
+                                                <p class="font-semibold text-dark-900">線上刷卡 (藍新金流)</p>
+                                                <p class="text-xs text-slate-400">支援各家信用卡一次付清</p>
+                                            </div>
+                                        </label>
+                                        <label id="pay-bank-transfer-label" class="flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                                            <input type="radio" name="payment_method" value="bank_transfer" class="text-brand-600 focus:ring-brand-500 mr-3">
+                                            <div class="text-sm">
+                                                <p class="font-semibold text-dark-900">銀行轉帳</p>
+                                                <p class="text-xs text-slate-400">下單後提供匯款帳號</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg shadow-lg shadow-brand-600/10 transition-colors flex justify-center items-center mt-6">
+                                    <span>確認結帳</span>
+                                    <i class="fa-solid fa-credit-card ml-2"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bank Transfer Info Modal -->
+        <div id="bank-modal" class="fixed inset-0 bg-dark-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-dark-100 transform scale-95 transition-all duration-300">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-circle-check text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark-900">訂單已成功建立</h3>
+                    <p class="text-sm text-slate-500 mt-1">請於 3 日內完成匯款，以利後續出貨</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl space-y-3 text-sm border border-slate-100 mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">銀行名稱</span>
+                        <span id="bank-name" class="font-semibold text-dark-900">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">戶名</span>
+                        <span id="bank-acc-name" class="font-semibold text-dark-900">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500">匯款帳號</span>
+                        <span id="bank-acc-num" class="font-semibold text-dark-900 font-mono">-</span>
+                    </div>
+                    <div class="flex justify-between border-t border-slate-200 pt-2 font-bold">
+                        <span class="text-slate-700">應匯金額</span>
+                        <span id="bank-amount" class="text-brand-600">-</span>
+                    </div>
+                </div>
+                <button onclick="closeBankModal()" class="w-full py-2.5 bg-dark-900 hover:bg-dark-800 text-white font-medium rounded-lg transition-colors">
+                    我知道了，關閉視窗
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark-900 text-white border-t border-dark-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-lg tracking-wider">B</div>
+                        <span class="text-lg font-bold tracking-tight">質本科研 Bio-Balance</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        主打「數據說話、成分透明」的理性派保健品牌。針對低頭族、熬夜加班族，提供高純度、高吸收率的精準營養解決方案。
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">快速連結</h4>
+                    <div class="space-y-2 text-sm">
+                        <a href="#home" onclick="navigateTo('home')" class="block text-slate-400 hover:text-white transition-colors">首頁</a>
+                        <a href="#products" onclick="navigateTo('products')" class="block text-slate-400 hover:text-white transition-colors">精選商品</a>
+                        <a href="#about" onclick="navigateTo('about')" class="block text-slate-400 hover:text-white transition-colors">關於我們</a>
+                        <a href="#contact" onclick="navigateTo('contact')" class="block text-slate-400 hover:text-white transition-colors">聯絡我們</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4">品牌承諾</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        不玩文字遊戲，只用純粹與實證，重新校正你的身體平衡。
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500">
+                <p>© 2026 質本科研 Bio-Balance. All rights reserved.</p>
+                <p class="mt-2 sm:mt-0">Powered by <a href="https://chandone.pages.dev" target="_blank" class="hover:text-white underline transition-colors">ChanDone</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Configuration
+        const API_BASE = 'https://grocery-496707.de.r.appspot.com';
+        const API_HEADERS = {
+            'X-API-Key': '2fc1cf4b-a31f-4ebb-803b-f6f082d13240',
+            'Content-Type': 'application/json'
+        };
+
+        // State
+        let shopInfo = null;
+        let cart = JSON.parse(localStorage.getItem('bio_balance_cart')) || [];
+        let categories = [];
+        let products = [];
+        let selectedCategory = null;
+        let searchQuery = '';
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-message');
+
+            if (type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-500 text-lg"></i>';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500 text-lg"></i>';
+            }
+
+            msg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Navigation
+        function navigateTo(pageId, extraParam = null) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show target section
+            const target = document.getElementById(`${pageId}-page`);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // Close mobile menu
+            document.getElementById('mobile-menu').classList.add('hidden');
+
+            // Handle specific page initializations
+            if (pageId === 'home') {
+                loadHomeProducts();
+            } else if (pageId === 'products') {
+                loadProductsPage();
+            } else if (pageId === 'product-detail' && extraParam) {
+                loadProductDetail(extraParam);
+            } else if (pageId === 'cart') {
+                renderCart();
+            } else if (pageId === 'about') {
+                loadAboutPage();
+            } else if (pageId === 'contact') {
+                loadContactPage();
             }
         }
 
-        showPage('home');
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Canvas Background Animation (Molecular / Scientific Vibe)
+        function initCanvas() {
+            const canvas = document.getElementById('hero-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let animationFrameId;
+
+            function resize() {
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            const particles = [];
+            const particleCount = 40;
+            const connectionDistance = 120;
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.5;
+                    this.radius = Math.random() * 2.5 + 1.5;
+                }
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(2, 132, 199, 0.25)';
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw connections
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < connectionDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(2, 132, 199, ${0.15 * (1 - dist / connectionDistance)})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Update and draw particles
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+
+                animationFrameId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // API Helper
+        async function apiFetch(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    ...options,
+                    headers: {
+                        ...API_HEADERS,
+                        ...options.headers
+                    }
+                });
+                if (!response.ok) throw new Error('API Error');
+                return await response.json();
+            } catch (error) {
+                console.error(error);
+                throw error;
+            }
+        }
+
+        // Initialize Shop Info & Cart Status
+        async function initShop() {
+            try {
+                shopInfo = await apiFetch('/api/shop-info');
+                
+                // Toggle Cart Button depending on disable_payment
+                const cartBtn = document.getElementById('cart-btn');
+                const paymentSettings = shopInfo.payment_settings || {};
+                
+                if (paymentSettings.disable_payment === false) {
+                    cartBtn.classList.remove('hidden');
+                } else {
+                    cartBtn.classList.add('hidden');
+                }
+
+                // Setup payment methods
+                const creditLabel = document.getElementById('pay-credit-card-label');
+                const bankLabel = document.getElementById('pay-bank-transfer-label');
+
+                if (!paymentSettings.is_credit_card_enabled) {
+                    creditLabel.classList.add('hidden');
+                    creditLabel.querySelector('input').disabled = true;
+                    creditLabel.querySelector('input').checked = false;
+                }
+                if (!paymentSettings.is_bank_transfer_enabled) {
+                    bankLabel.classList.add('hidden');
+                    bankLabel.querySelector('input').disabled = true;
+                    bankLabel.querySelector('input').checked = false;
+                }
+
+                // Default selection if credit is disabled
+                if (!paymentSettings.is_credit_card_enabled && paymentSettings.is_bank_transfer_enabled) {
+                    bankLabel.querySelector('input').checked = true;
+                }
+
+                updateCartCount();
+            } catch (error) {
+                console.error("Failed to load shop info", error);
+            }
+        }
+
+        // Load Home Products (Latest 10)
+        async function loadHomeProducts() {
+            const loader = document.getElementById('home-loader');
+            const grid = document.getElementById('home-products-grid');
+            const errorMsg = document.getElementById('home-error');
+
+            loader.classList.remove('hidden');
+            grid.classList.add('hidden');
+            errorMsg.classList.add('hidden');
+
+            try {
+                const products = await apiFetch('/api/products');
+                const latestProducts = products.slice(0, 10);
+
+                grid.innerHTML = latestProducts.map(p => renderProductCard(p)).join('');
+                loader.classList.add('hidden');
+                grid.classList.remove('hidden');
+            } catch (error) {
+                loader.classList.add('hidden');
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        // Render Single Product Card
+        function renderProductCard(p) {
+            const imageUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&w=600&q=80';
+            const price = parseFloat(p.price).toLocaleString();
+            
+            // Check if payment enabled to show quick buy
+            const isPaymentEnabled = shopInfo && shopInfo.payment_settings && !shopInfo.payment_settings.disable_payment;
+            const actionBtn = isPaymentEnabled 
+                ? `<button onclick="event.stopPropagation(); addToCart('${p.id}', '${p.name}', ${p.price}, '${imageUrl}')" class="p-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition-colors shadow-md shadow-brand-600/10">
+                    <i class="fa-solid fa-cart-plus"></i>
+                   </button>`
+                : '';
+
+            return `
+                <div onclick="navigateTo('product-detail', '${p.id}')" class="bg-white rounded-xl border border-dark-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col h-full">
+                    <div class="relative overflow-hidden aspect-square bg-slate-50">
+                        <img src="${imageUrl}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-brand-700 text-xs font-bold px-2.5 py-1 rounded-full border border-brand-100">
+                            ${p.category_name || '精選配方'}
+                        </span>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <span class="text-xs text-slate-400 font-semibold tracking-wider uppercase mb-1">${p.brand || 'Bio-Balance'}</span>
+                        <h3 class="font-bold text-dark-900 text-base line-clamp-2 mb-2 group-hover:text-brand-600 transition-colors">${p.name}</h3>
+                        <p class="text-xs text-slate-500 line-clamp-2 mb-4 flex-grow">${p.description || ''}</p>
+                        <div class="flex justify-between items-center mt-auto pt-4 border-t border-slate-50">
+                            <div>
+                                <span class="text-xs text-slate-400 block">NT$</span>
+                                <span class="text-lg font-extrabold text-dark-900">${price}</span>
+                            </div>
+                            ${actionBtn}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Products Page (Categories & All Products)
+        async function loadProductsPage() {
+            const catList = document.getElementById('categories-list');
+            const loader = document.getElementById('products-loader');
+            const grid = document.getElementById('products-grid');
+            const noProducts = document.getElementById('no-products');
+
+            loader.classList.remove('hidden');
+            grid.classList.add('hidden');
+            noProducts.classList.add('hidden');
+
+            try {
+                // Load Categories if not loaded
+                if (categories.length === 0) {
+                    categories = await apiFetch('/api/categories');
+                    catList.innerHTML = `
+                        <button onclick="filterCategory(null)" class="cat-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${!selectedCategory ? 'bg-brand-50 text-brand-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}">
+                            全部商品
+                        </button>
+                    ` + categories.map(c => `
+                        <button onclick="filterCategory('${c.id}')" class="cat-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${selectedCategory === c.id ? 'bg-brand-50 text-brand-700 font-bold' : 'text-slate-600 hover:bg-slate-50'}">
+                            ${c.name}
+                        </button>
+                    `).join('');
+                }
+
+                // Fetch products (with search query if any)
+                let url = '/api/products';
+                if (searchQuery) {
+                    url += `?q=${encodeURIComponent(searchQuery)}`;
+                }
+                products = await apiFetch(url);
+
+                // Filter locally by category
+                let filteredProducts = products;
+                if (selectedCategory) {
+                    filteredProducts = products.filter(p => p.category_id === selectedCategory);
+                }
+
+                if (filteredProducts.length === 0) {
+                    noProducts.classList.remove('hidden');
+                    grid.classList.add('hidden');
+                } else {
+                    grid.innerHTML = filteredProducts.map(p => renderProductCard(p)).join('');
+                    grid.classList.remove('hidden');
+                }
+                loader.classList.add('hidden');
+            } catch (error) {
+                loader.classList.add('hidden');
+                showToast('無法載入商品資料', 'error');
+            }
+        }
+
+        // Filter Category
+        function filterCategory(catId) {
+            selectedCategory = catId;
+            // Update category active state UI
+            const buttons = document.querySelectorAll('.cat-btn');
+            buttons.forEach((btn, index) => {
+                if (catId === null && index === 0) {
+                    btn.className = "cat-btn w-full text-left px-3 py-2 rounded-lg text-sm font-bold bg-brand-50 text-brand-700 transition-colors";
+                } else if (categories[index - 1] && categories[index - 1].id === catId) {
+                    btn.className = "cat-btn w-full text-left px-3 py-2 rounded-lg text-sm font-bold bg-brand-50 text-brand-700 transition-colors";
+                } else {
+                    btn.className = "cat-btn w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors";
+                }
+            });
+            loadProductsPage();
+        }
+
+        // Search Input Event
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchQuery = e.target.value;
+                loadProductsPage();
+            }, 400);
+        });
+
+        // Load Product Detail Page
+        async function loadProductDetail(id) {
+            const container = document.getElementById('product-detail-container');
+            container.innerHTML = `
+                <div class="animate-pulse p-8 grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="bg-slate-200 h-96 rounded-xl"></div>
+                    <div class="space-y-4">
+                        <div class="h-8 bg-slate-200 rounded w-3/4"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+                        <div class="h-24 bg-slate-200 rounded"></div>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const p = await apiFetch(`/api/products/${id}`);
+                const imageUrl = p.images && p.images.length > 0 ? p.images[0] : 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&w=600&q=80';
+                const price = parseFloat(p.price);
+
+                // Build Specs HTML
+                let specsHtml = '';
+                if (p.specs && Object.keys(p.specs).length > 0) {
+                    specsHtml = `
+                        <div class="border-t border-slate-100 pt-6 mt-6">
+                            <h4 class="text-sm font-bold text-dark-900 mb-3">產品規格</h4>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                ${Object.entries(p.specs).map(([key, val]) => `
+                                    <div class="bg-slate-50 p-2.5 rounded-lg">
+                                        <span class="text-xs text-slate-400 block">${key}</span>
+                                        <span class="font-medium text-dark-900">${val}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const isPaymentEnabled = shopInfo && shopInfo.payment_settings && !shopInfo.payment_settings.disable_payment;
+                const actionSection = isPaymentEnabled
+                    ? `
+                        <div class="flex items-center space-x-4 pt-6 border-t border-slate-100">
+                            <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden">
+                                <button onclick="adjustDetailQty(-1)" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"><i class="fa-solid fa-minus text-xs"></i></button>
+                                <span id="detail-qty" class="px-4 py-2 font-bold text-sm bg-white min-w-[40px] text-center">1</span>
+                                <button onclick="adjustDetailQty(1)" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
+                            <button onclick="addProductToCart('${p.id}', '${p.name}', ${price}, '${imageUrl}')" class="flex-grow py-3 px-6 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-lg transition-colors shadow-lg shadow-brand-600/10 flex justify-center items-center">
+                                <i class="fa-solid fa-cart-plus mr-2"></i> 加入購物車
+                            </button>
+                        </div>
+                    `
+                    : `<p class="text-slate-400 text-sm italic pt-4">此商店目前未啟用購物功能</p>`;
+
+                container.innerHTML = `
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 p-6 md:p-10">
+                        <!-- Left: Image -->
+                        <div class="lg:col-span-6">
+                            <div class="rounded-2xl overflow-hidden bg-slate-50 border border-slate-100 aspect-square">
+                                <img src="${imageUrl}" alt="${p.name}" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                        <!-- Right: Info -->
+                        <div class="lg:col-span-6 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <span class="inline-block px-3 py-1 bg-brand-50 text-brand-700 text-xs font-bold rounded-full">
+                                    ${p.category_name || '精選配方'}
+                                </span>
+                                <span class="text-xs text-slate-400 font-semibold tracking-wider uppercase block">${p.brand || 'Bio-Balance'}</span>
+                                <h1 class="text-2xl md:text-3xl font-bold text-dark-900 leading-tight">${p.name}</h1>
+                                <p class="text-2xl font-extrabold text-brand-600">NT$ ${price.toLocaleString()}</p>
+                                <p class="text-slate-600 text-sm leading-relaxed whitespace-pre-line">${p.description || '無詳細描述'}</p>
+                                ${specsHtml}
+                            </div>
+                            <div class="mt-8">
+                                ${actionSection}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="p-8 text-center text-red-500">
+                        <i class="fa-solid fa-circle-exclamation text-4xl mb-2"></i>
+                        <p>載入商品詳細資訊失敗</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Adjust Detail Quantity
+        function adjustDetailQty(amount) {
+            const qtyEl = document.getElementById('detail-qty');
+            let current = parseInt(qtyEl.textContent);
+            current += amount;
+            if (current < 1) current = 1;
+            qtyEl.textContent = current;
+        }
+
+        // Add Product to Cart from Detail Page
+        function addProductToCart(id, name, price, imageUrl) {
+            const qty = parseInt(document.getElementById('detail-qty').textContent);
+            addToCart(id, name, price, imageUrl, qty);
+        }
+
+        // Cart Actions
+        function addToCart(id, name, price, imageUrl, qty = 1) {
+            // Check if shopInfo is valid
+            if (!shopInfo || !shopInfo.payment_settings) {
+                showToast('購物流程出現錯誤，請重新整理網頁再次嘗試', 'error');
+                return;
+            }
+
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ id, name, price, imageUrl, qty });
+            }
+            saveCart();
+            updateCartCount();
+            showToast(`已加入購物車：${name}`);
+        }
+
+        function saveCart() {
+            localStorage.setItem('bio_balance_cart', JSON.stringify(cart));
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').textContent = count;
+        }
+
+        // Render Cart Page
+        function renderCart() {
+            // Safety check for shopInfo
+            if (!shopInfo || !shopInfo.payment_settings) {
+                showToast('購物流程出現錯誤，請重新整理網頁再次嘗試', 'error');
+                navigateTo('home');
+                return;
+            }
+
+            const emptyState = document.getElementById('cart-empty-state');
+            const content = document.getElementById('cart-content');
+            const itemsContainer = document.getElementById('cart-items-container');
+
+            if (cart.length === 0) {
+                emptyState.classList.remove('hidden');
+                content.classList.add('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            content.classList.remove('hidden');
+
+            // Render Items
+            itemsContainer.innerHTML = cart.map(item => `
+                <div class="flex py-6 items-center">
+                    <img src="${item.imageUrl}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg border border-slate-100 bg-slate-50">
+                    <div class="ml-4 flex-grow">
+                        <h4 class="font-bold text-dark-900 text-sm line-clamp-1">${item.name}</h4>
+                        <p class="text-xs text-brand-600 font-semibold mt-1">NT$ ${item.price.toLocaleString()}</p>
+                    </div>
+                    <div class="flex items-center border border-slate-200 rounded-lg overflow-hidden ml-4">
+                        <button onclick="updateCartQty('${item.id}', -1)" class="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"><i class="fa-solid fa-minus text-xxs"></i></button>
+                        <span class="px-3 py-1 font-bold text-xs bg-white min-w-[30px] text-center">${item.qty}</span>
+                        <button onclick="updateCartQty('${item.id}', 1)" class="px-2 py-1 bg-slate-50 hover:bg-slate-100 text-slate-600 transition-colors"><i class="fa-solid fa-plus text-xxs"></i></button>
+                    </div>
+                    <button onclick="removeFromCart('${item.id}')" class="ml-4 text-slate-400 hover:text-red-500 transition-colors">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            calculateSummary();
+        }
+
+        // Update Cart Item Quantity
+        function updateCartQty(id, amount) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.qty += amount;
+                if (item.qty < 1) item.qty = 1;
+                saveCart();
+                updateCartCount();
+                renderCart();
+            }
+        }
+
+        // Remove Item from Cart
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            saveCart();
+            updateCartCount();
+            renderCart();
+            showToast('已從購物車移除商品');
+        }
+
+        // Calculate Cart Totals & Shipping
+        function calculateSummary() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const settings = shopInfo.payment_settings;
+            const threshold = settings.free_shipping_threshold;
+            const baseFee = settings.shipping_fee !== undefined ? settings.shipping_fee : 65;
+
+            let shippingFee = baseFee;
+            let tipHtml = '';
+
+            if (threshold !== null && subtotal >= threshold) {
+                shippingFee = 0;
+                tipHtml = `<i class="fa-solid fa-truck-fast mr-1.5"></i> 已達免運門檻！享有免運優惠`;
+            } else if (threshold !== null) {
+                const diff = threshold - subtotal;
+                tipHtml = `<i class="fa-solid fa-circle-info mr-1.5"></i> 再消費 <span class="font-bold">NT$ ${diff.toLocaleString()}</span> 即可享有免運優惠！`;
+            } else {
+                tipHtml = `<i class="fa-solid fa-truck mr-1.5"></i> 運費固定為 NT$ ${baseFee}`;
+            }
+
+            const total = subtotal + shippingFee;
+
+            document.getElementById('cart-subtotal').textContent = `NT$ ${subtotal.toLocaleString()}`;
+            document.getElementById('cart-shipping-fee').textContent = shippingFee === 0 ? '免運' : `NT$ ${shippingFee.toLocaleString()}`;
+            document.getElementById('free-shipping-tip').innerHTML = tipHtml;
+            document.getElementById('cart-total').textContent = `NT$ ${total.toLocaleString()}`;
+        }
+
+        // Checkout Submit
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!shopInfo || !shopInfo.payment_settings) {
+                showToast('購物流程出現錯誤，請重新整理網頁再次嘗試', 'error');
+                return;
+            }
+
+            const name = document.getElementById('cust-name').value;
+            const phone = document.getElementById('cust-phone').value;
+            const email = document.getElementById('cust-email').value;
+            const address = document.getElementById('cust-address').value;
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+
+            // Prepare Description
+            const itemDesc = cart.map(item => `${item.name} x ${item.qty}`).join(', ');
+
+            // Calculate Amount
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const settings = shopInfo.payment_settings;
+            const threshold = settings.free_shipping_threshold;
+            const baseFee = settings.shipping_fee !== undefined ? settings.shipping_fee : 65;
+            const shippingFee = (threshold !== null && subtotal >= threshold) ? 0 : baseFee;
+            const totalAmount = subtotal + shippingFee;
+
+            const payload = {
+                amount: totalAmount,
+                item_desc: itemDesc,
+                payment_method: paymentMethod,
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    qty: item.qty
+                })),
+                customer_data: { name, phone, address, email }
+            };
+
+            try {
+                showToast('正在建立訂單，請稍候...', 'success');
+                const res = await apiFetch('/api/create-payment', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.status === 'success') {
+                    if (paymentMethod === 'credit_card') {
+                        // Submit Form to Newebpay
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = res.newebpay_url;
+
+                        const params = {
+                            MerchantID: res.MerchantID,
+                            TradeInfo: res.TradeInfo,
+                            TradeSha: res.TradeSha,
+                            Version: res.Version
+                        };
+
+                        for (const [key, val] of Object.entries(params)) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = val;
+                            form.appendChild(input);
+                        }
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    } else {
+                        // Bank Transfer
+                        document.getElementById('bank-name').textContent = settings.bank_name || '-';
+                        document.getElementById('bank-acc-name').textContent = settings.bank_account_name || '-';
+                        document.getElementById('bank-acc-num').textContent = settings.bank_account_number || '-';
+                        document.getElementById('bank-amount').textContent = `NT$ ${totalAmount.toLocaleString()}`;
+
+                        // Open Modal
+                        const modal = document.getElementById('bank-modal');
+                        modal.classList.remove('hidden');
+                        setTimeout(() => {
+                            modal.querySelector('.transform').classList.remove('scale-95');
+                            modal.querySelector('.transform').classList.add('scale-100');
+                        }, 50);
+
+                        // Clear Cart
+                        cart = [];
+                        saveCart();
+                        updateCartCount();
+                    }
+                } else {
+                    showToast('建立訂單失敗，請稍後再試', 'error');
+                }
+            } catch (error) {
+                showToast('伺服器連線異常，請重新整理網頁再次嘗試', 'error');
+            }
+        });
+
+        function closeBankModal() {
+            const modal = document.getElementById('bank-modal');
+            modal.querySelector('.transform').classList.remove('scale-100');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                navigateTo('home');
+            }, 300);
+        }
+
+        // Load About Page
+        async function loadAboutPage() {
+            const img = document.getElementById('about-shop-photo');
+            if (shopInfo && shopInfo.shop_photo_url) {
+                img.src = shopInfo.shop_photo_url;
+            } else {
+                img.src = 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80';
+            }
+        }
+
+        // Load Contact Page
+        async function loadContactPage() {
+            const list = document.getElementById('contact-info-list');
+            try {
+                const contacts = await apiFetch('/api/contact-info');
+                if (contacts.length === 0) {
+                    list.innerHTML = `<p class="text-slate-400 text-sm">暫無聯絡資訊</p>`;
+                    return;
+                }
+
+                list.innerHTML = contacts.map(c => {
+                    let icon = '<i class="fa-solid fa-circle-info"></i>';
+                    let href = '#';
+                    let label = c.value;
+
+                    if (c.type === 'email') {
+                        icon = '<i class="fa-solid fa-envelope text-brand-600"></i>';
+                        href = `mailto:${c.value}`;
+                    } else if (c.type === 'phone') {
+                        icon = '<i class="fa-solid fa-phone text-brand-600"></i>';
+                        href = `tel:${c.value}`;
+                    } else if (c.type === 'address') {
+                        icon = '<i class="fa-solid fa-location-dot text-brand-600"></i>';
+                        href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.value)}`;
+                    } else if (c.type === 'line') {
+                        icon = '<i class="fa-brands fa-line text-emerald-500"></i>';
+                        href = `https://line.me/R/ti/p/~${c.value}`;
+                    } else if (c.type === 'line_qr') {
+                        return `
+                            <div class="flex flex-col items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <span class="text-xs font-semibold text-slate-500 mb-2">LINE 官方帳號 QR Code</span>
+                                <img src="${c.value}" alt="LINE QR" class="w-32 h-32 object-contain">
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <a href="${href}" target="_blank" class="flex items-center p-3 hover:bg-slate-50 rounded-xl transition-colors border border-slate-100">
+                            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center text-lg mr-4">
+                                ${icon}
+                            </div>
+                            <div class="flex-grow">
+                                <p class="text-xs text-slate-400 font-semibold uppercase tracking-wider">${c.type}</p>
+                                <p class="text-sm font-medium text-dark-900">${label}</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                        </a>
+                    `;
+                }).join('');
+            } catch (error) {
+                list.innerHTML = `<p class="text-red-500 text-sm">無法載入聯絡資訊</p>`;
+            }
+        }
+
+        // Contact Form Submit
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            try {
+                showToast('傳送中...', 'success');
+                const res = await apiFetch('/api/submit_form', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.status === 'success') {
+                    showToast('訊息已成功送出！');
+                    form.reset();
+                } else {
+                    showToast('傳送失敗，請稍後再試', 'error');
+                }
+            } catch (error) {
+                showToast('傳送失敗，請稍後再試', 'error');
+            }
+        });
+
+        // Routing Handler on Hash Change
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1) || 'home';
+            navigateTo(hash);
+        });
+
+        // App Entry Point
+        window.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+            initShop();
+            
+            // Initial routing
+            const hash = window.location.hash.substring(1) || 'home';
+            navigateTo(hash);
+        });
     </script>
 </body>
 </html>
